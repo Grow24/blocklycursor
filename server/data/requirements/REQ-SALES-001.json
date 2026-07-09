@@ -1,0 +1,140 @@
+{
+  "requirement_id": "REQ-SALES-001",
+  "goal": "Improve high-score lead follow-up",
+  "actor": "Sales Manager",
+  "trigger": "Lead score updated",
+  "condition": {
+    "field": "lead_score",
+    "operator": ">",
+    "value": "80"
+  },
+  "conditions": [
+    {
+      "field": "lead_score",
+      "operator": ">",
+      "value": "80"
+    }
+  ],
+  "actions": [
+    "Create task \"Follow up with customer\" for role Sales Manager",
+    "Notify Sales Manager: High-score lead needs follow-up"
+  ],
+  "structured_actions": [
+    {
+      "action": "create_task",
+      "title": "Follow up with customer",
+      "assigned_role": "Sales Manager"
+    },
+    {
+      "action": "send_notification",
+      "assigned_role": "Sales Manager",
+      "message": "High-score lead needs follow-up"
+    }
+  ],
+  "data_entities": [],
+  "business_rules": [],
+  "acceptance_criteria": [
+    "Given score > 80, then task is created"
+  ],
+  "nfrs": {},
+  "approvals": [],
+  "outputs": [],
+  "notifications": [
+    {
+      "role": "Sales Manager",
+      "message": "High-score lead needs follow-up"
+    }
+  ],
+  "procedures": [],
+  "functions": [],
+  "out_of_scope": [],
+  "status": "Validated",
+  "blockly_workspace": {
+    "blocks": {
+      "languageVersion": 0,
+      "blocks": [
+        {
+          "type": "pbmp_requirement_root",
+          "id": "root1",
+          "x": 50,
+          "y": 50,
+          "deletable": false,
+          "fields": {
+            "REQ_ID": "REQ-SALES-001"
+          },
+          "inputs": {
+            "BODY": {
+              "block": {
+                "type": "pbmp_goal",
+                "id": "g1",
+                "fields": {
+                  "GOAL_TEXT": "Improve high-score lead follow-up"
+                },
+                "next": {
+                  "block": {
+                    "type": "pbmp_actor",
+                    "id": "a1",
+                    "fields": {
+                      "ACTOR": "Sales Manager"
+                    },
+                    "next": {
+                      "block": {
+                        "type": "pbmp_trigger",
+                        "id": "t1",
+                        "fields": {
+                          "TRIGGER": "Lead score updated"
+                        },
+                        "next": {
+                          "block": {
+                            "type": "pbmp_condition",
+                            "id": "c1",
+                            "fields": {
+                              "FIELD": "lead_score",
+                              "OPERATOR": ">",
+                              "VALUE": "80"
+                            },
+                            "next": {
+                              "block": {
+                                "type": "pbmp_create_task",
+                                "id": "act1",
+                                "fields": {
+                                  "TITLE": "Follow up with customer",
+                                  "ASSIGNED_ROLE": "Sales Manager"
+                                },
+                                "next": {
+                                  "block": {
+                                    "type": "pbmp_notify",
+                                    "id": "act2",
+                                    "fields": {
+                                      "ROLE": "Sales Manager",
+                                      "MESSAGE": "High-score lead needs follow-up"
+                                    },
+                                    "next": {
+                                      "block": {
+                                        "type": "pbmp_acceptance",
+                                        "id": "ac1",
+                                        "fields": {
+                                          "AC": "Given score > 80, then task is created"
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "backpack": []
+  },
+  "saved_at": "2026-07-09T11:32:39.969Z"
+}

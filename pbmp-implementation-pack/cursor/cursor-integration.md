@@ -1,0 +1,67 @@
+# Cursor Integration Architecture
+
+## Do not pipe raw Blockly into Cursor
+
+Unsafe:
+```
+Blockly workspace JSON → Cursor → code
+```
+
+Safe (PBMP control layer):
+```
+Blockly Requirement Blocks
+→ PBMP Requirement JSON
+→ PBMP validation and approval
+→ Expected Output Contract
+→ Cursor Implementation Pack
+→ Cursor Cloud Agent API / Headless CLI / MCP
+→ Code branch / PR
+→ Tests + review + deployment gates
+```
+
+## What Cursor should receive
+
+A contract like `cursor-payload-REQ-SALES-001.json`, not only `blockly_workspace`.
+
+Required fields:
+- requirement_id, goal, trigger, conditions, actions
+- structured_actions (machine-friendly)
+- acceptance_criteria, nfrs, out_of_scope
+- procedures / functions if defined
+- expected_output_contract
+- fixed instruction: no invention / gap log on ambiguity
+
+## Hallucination reduction controls
+
+1. Structured Blockly capture  
+2. Schema + vocabulary validation  
+3. Approved Expected Output Contract  
+4. Cursor Rules (`.cursor/rules/pbmp-*.mdc`)  
+5. Plan Mode before coding  
+6. Test-first from acceptance criteria  
+7. CI/CD checks  
+8. Human PR review  
+
+## How to use with Cursor today
+
+### A. Manual (IDE)
+
+1. Save & Validate in workbench  
+2. Open `cursor-payload-*.json` under `pbmp-implementation-pack/cursor/`  
+3. Use `implementation-prompt.md` + rules in IDE  
+
+### B. Automation (later / Ops)
+
+- Cloud Agents API: create agent run with pack as prompt context  
+- Headless CLI: CI job with API key + pack path  
+- MCP: expose approved requirements + EOC as read-only tools  
+
+## PBMP owns truth
+
+```
+PBMP owns truth
+Blockly captures structured intention
+Cursor implements approved work
+CI/CD verifies output
+Humans approve deviations
+```

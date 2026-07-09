@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>PBMP — Product Discovery Workbench</title>
+    <link rel="stylesheet" href="/src/style.css" />
+  </head>
+  <body>
+    <header class="app-header">
+      <div class="brand">
+        <h1>PBMP Product Discovery</h1>
+        <p>Structured requirements capture with Blockly</p>
+      </div>
+      <nav class="app-nav">
+        <a href="/leads">Lead Management</a>
+      </nav>
+      <div class="toolbar">
+        <button id="btn-export" type="button">Export Requirement JSON</button>
+        <button id="btn-cursor" type="button">Export Cursor Pack</button>
+        <button id="btn-save" type="button" class="primary">Save &amp; Validate</button>
+        <button id="btn-load" type="button">Load Sample</button>
+        <span id="status" class="status"></span>
+      </div>
+    </header>
+    <main>
+      <div id="blocklyDiv"></div>
+    </main>
+    <section id="cursor-dispatch-panel" class="dispatch-panel hidden">
+      <div class="dispatch-card">
+        <h3>Cursor Dispatch Ready</h3>
+        <p id="dispatch-message"></p>
+        <textarea id="dispatch-prompt" readonly></textarea>
+        <div class="dispatch-actions">
+          <button id="btn-open-cursor" type="button" class="primary">Open Cursor Chat</button>
+          <button id="btn-open-cursor-web" type="button">Open Cursor Web Chat</button>
+          <button id="btn-copy-prompt" type="button">Copy Prompt</button>
+          <button id="btn-close-dispatch" type="button">Close</button>
+        </div>
+      </div>
+    </section>
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>

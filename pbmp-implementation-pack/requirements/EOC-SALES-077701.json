@@ -1,0 +1,25 @@
+{
+  "expected_output_contract_id": "EOC-SALES-077701",
+  "source_stage": "Product Discovery",
+  "business_goal_id": "GOAL-SALES-077701",
+  "requirement_ids": [
+    "REQ-SALES-077701"
+  ],
+  "expected_business_outcome": "Improve high-score lead follow-up",
+  "in_scope": [
+    "Create follow-up task",
+    "Notify Sales Manager"
+  ],
+  "out_of_scope": [],
+  "actors": [
+    "Sales Manager"
+  ],
+  "data_entities": [],
+  "business_rules": [],
+  "acceptance_criteria": [
+    "AC-REQ-SALES-077701-1: Given score > 80, then task is created"
+  ],
+  "nfrs": {},
+  "approved_by": "Pending",
+  "status": "Approved for Design"
+}

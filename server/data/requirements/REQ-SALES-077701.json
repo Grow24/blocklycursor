@@ -1,0 +1,116 @@
+{
+  "requirement_id": "REQ-SALES-077701",
+  "goal": "Improve high-score lead follow-up",
+  "actor": "Sales Manager",
+  "trigger": "Lead score updated",
+  "condition": {
+    "field": "lead_score",
+    "operator": ">",
+    "value": "80"
+  },
+  "conditions": [
+    {
+      "field": "lead_score",
+      "operator": ">",
+      "value": "80"
+    }
+  ],
+  "actions": [
+    "Create follow-up task",
+    "Notify Sales Manager"
+  ],
+  "data_entities": [],
+  "business_rules": [],
+  "acceptance_criteria": [
+    "Given score > 80, then task is created"
+  ],
+  "nfrs": {},
+  "approvals": [],
+  "outputs": [],
+  "status": "Validated",
+  "blockly_workspace": {
+    "blocks": {
+      "languageVersion": 0,
+      "blocks": [
+        {
+          "type": "pbmp_requirement_root",
+          "id": "root1",
+          "x": 50,
+          "y": 50,
+          "deletable": false,
+          "fields": {
+            "REQ_ID": "REQ-SALES-077701"
+          },
+          "inputs": {
+            "BODY": {
+              "block": {
+                "type": "pbmp_goal",
+                "id": "g1",
+                "fields": {
+                  "GOAL_TEXT": "Improve high-score lead follow-up"
+                },
+                "next": {
+                  "block": {
+                    "type": "pbmp_actor",
+                    "id": "a1",
+                    "fields": {
+                      "ACTOR": "Sales Manager"
+                    },
+                    "next": {
+                      "block": {
+                        "type": "pbmp_trigger",
+                        "id": "t1",
+                        "fields": {
+                          "TRIGGER": "Lead score updated"
+                        },
+                        "next": {
+                          "block": {
+                            "type": "pbmp_condition",
+                            "id": "c1",
+                            "fields": {
+                              "FIELD": "lead_score",
+                              "VALUE": "80"
+                            },
+                            "next": {
+                              "block": {
+                                "type": "pbmp_action",
+                                "id": "act1",
+                                "fields": {
+                                  "ACTION": "Create follow-up task"
+                                },
+                                "next": {
+                                  "block": {
+                                    "type": "pbmp_action",
+                                    "id": "act2",
+                                    "fields": {
+                                      "ACTION": "Notify Sales Manager"
+                                    },
+                                    "next": {
+                                      "block": {
+                                        "type": "pbmp_acceptance",
+                                        "id": "ac1",
+                                        "fields": {
+                                          "AC": "Given score > 80, then task is created"
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "backpack": []
+  },
+  "saved_at": "2026-07-07T11:36:52.320Z"
+}

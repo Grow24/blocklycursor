@@ -1,0 +1,30 @@
+---
+description: PBMP requirement-locked development — no invention, contract-first
+alwaysApply: true
+---
+
+# PBMP Requirement-Locked Development
+
+You are implementing PBMP features from approved lifecycle artifacts.
+
+## Mandatory rules
+
+1. Do not invent requirements, business rules, data entities, UI screens, APIs, roles, or workflows.
+2. Every implementation change must reference a Requirement ID.
+3. Every test must reference an Acceptance Criteria ID.
+4. If information is missing, create a GAP item in `pbmp-implementation-pack/gaps/gap-log.md`.
+5. Do not silently resolve ambiguity.
+6. For multi-file changes, produce a plan before editing code.
+7. Before finalizing, run lint, typecheck, build, and tests; report exact pass/fail results.
+8. Implement only the approved Expected Output Contract in `pbmp-implementation-pack/requirements/`.
+
+## Source of truth (read-only unless explicitly updating approved artifacts)
+
+- `pbmp-implementation-pack/requirements/approved-requirements.json`
+- `pbmp-implementation-pack/design/`
+- `pbmp-implementation-pack/tests/`
+- `schemas/`
+
+## Success criteria
+
+Work is complete only when acceptance tests pass, traceability is updated, and a deviation report is produced.

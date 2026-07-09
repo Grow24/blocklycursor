@@ -1,0 +1,37 @@
+---
+description: PBMP no-invention rule — gaps instead of assumptions
+alwaysApply: true
+---
+
+# PBMP No-Invention Rule
+
+Cursor may assist execution, but PBMP controls truth.
+
+## Forbidden
+
+- Adding features not in approved requirements or design
+- Changing acceptance criteria without approval
+- Inventing API fields, database columns, or UI elements
+- Guessing business rules when data is missing
+
+## Required when blocked
+
+Create a gap log entry:
+
+```json
+{
+  "gap_id": "GAP-REQ-XXX-01",
+  "source_requirement": "REQ-XXX",
+  "gap_type": "Missing Business Rule",
+  "question": "What should happen when ...?",
+  "status": "Open",
+  "blocks_downstream_stage": "Development",
+  "owner": "Business Analyst"
+}
+```
+
+Save to `pbmp-implementation-pack/gaps/gap-log.md`.
+
+## Deviation report (end of every task)
+
+Report: requested items, changed items, missing items, extra items, assumptions, tests run, traceability links.

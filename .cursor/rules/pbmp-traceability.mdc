@@ -1,0 +1,35 @@
+---
+description: PBMP traceability — every artifact must link to requirement IDs
+globs: "**/*.{js,ts,tsx,py,md,yaml,yml,feature}"
+alwaysApply: false
+---
+
+# PBMP Traceability Rule
+
+Every commit, component, API, database table, service, and test must trace back to one or more of:
+
+- Business Goal ID
+- Requirement ID
+- Use Case ID
+- Acceptance Criteria ID
+- NFR ID
+
+## Code headers
+
+```javascript
+/**
+ * PBMP Traceability
+ * Requirement: REQ-SALES-001
+ * Acceptance Criteria: AC-SALES-001, AC-SALES-002
+ */
+```
+
+## API contracts
+
+Add `x-pbmp-requirement-id` and `x-pbmp-acceptance-criteria` extensions to OpenAPI paths.
+
+## Tests
+
+Name describe/it blocks with Requirement and AC IDs.
+
+If no traceability exists, do not implement the change.

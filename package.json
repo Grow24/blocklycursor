@@ -1,0 +1,24 @@
+{
+  "name": "pbmp-blockly",
+  "version": "1.0.0",
+  "description": "PBMP Product Discovery Workbench with Blockly plugins and anti-hallucination governance",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "install:all": "npm install && npm install --prefix client && npm install --prefix server",
+    "dev": "concurrently \"npm run dev --prefix server\" \"npm run dev --prefix client\"",
+    "build": "npm run build --prefix client",
+    "start": "npm run build && npm run start --prefix server",
+    "validate": "node scripts/validate-requirements.mjs",
+    "test": "npm test --prefix server",
+    "setup:local": "bash scripts/setup-local.sh"
+  },
+  "devDependencies": {
+    "ajv": "^8.17.1",
+    "ajv-formats": "^3.0.1",
+    "concurrently": "^9.1.2"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  }
+}

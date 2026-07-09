@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>PBMP — Lead Management</title>
+    <link rel="stylesheet" href="/src/leads/leads.css" />
+  </head>
+  <body>
+    <header class="lms-header">
+      <div class="brand">
+        <h1>Lead Management</h1>
+        <p>REQ-SALES-001 — High-score lead follow-up workflow</p>
+      </div>
+      <nav class="lms-nav">
+        <a href="/">Discovery Workbench</a>
+        <a href="/leads" class="active">Leads</a>
+      </nav>
+    </header>
+
+    <main class="lms-main">
+      <section class="stats-bar" id="stats-bar" aria-live="polite"></section>
+
+      <div class="lms-grid">
+        <section class="panel">
+          <div class="panel-header">
+            <h2>Leads</h2>
+            <button type="button" id="btn-new-lead" class="btn primary">New Lead</button>
+          </div>
+          <div id="leads-list" class="list" role="list"></div>
+        </section>
+
+        <section class="panel">
+          <div class="panel-header">
+            <h2 id="detail-title">Lead Details</h2>
+          </div>
+          <div id="lead-detail" class="detail">
+            <p class="placeholder">Select a lead or create a new one.</p>
+          </div>
+        </section>
+      </div>
+
+      <div class="lms-grid secondary">
+        <section class="panel">
+          <div class="panel-header"><h2>Tasks</h2></div>
+          <div id="tasks-list" class="list compact"></div>
+        </section>
+        <section class="panel">
+          <div class="panel-header"><h2>Notifications</h2></div>
+          <div id="notifications-list" class="list compact"></div>
+        </section>
+        <section class="panel">
+          <div class="panel-header"><h2>Audit Log</h2></div>
+          <div id="audit-list" class="list compact"></div>
+        </section>
+      </div>
+    </main>
+
+    <dialog id="lead-dialog">
+      <form id="lead-form" method="dialog">
+        <h3 id="dialog-title">New Lead</h3>
+        <label>
+          Name
+          <input name="name" required maxlength="120" />
+        </label>
+        <label>
+          Email
+          <input name="email" type="email" required />
+        </label>
+        <label>
+          Company
+          <input name="company" maxlength="120" />
+        </label>
+        <label>
+          Lead Score (0–100)
+          <input name="lead_score" type="number" min="0" max="100" value="0" required />
+        </label>
+        <label>
+          Assigned To
+          <select name="assigned_to" id="assigned-to-select">
+            <option value="">Unassigned</option>
+          </select>
+        </label>
+        <div class="dialog-actions">
+          <button type="button" id="btn-cancel" class="btn">Cancel</button>
+          <button type="submit" class="btn primary">Save</button>
+        </div>
+      </form>
+    </dialog>
+
+    <div id="toast" class="toast" role="status" aria-live="polite"></div>
+    <script type="module" src="/src/leads/main.js"></script>
+  </body>
+</html>
