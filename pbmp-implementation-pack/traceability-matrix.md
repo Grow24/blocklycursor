@@ -11,7 +11,7 @@
 | `server/routes/notifications.js` | REQ-SALES-001 | AC-REQ-SALES-001-1 |
 | `server/routes/audit.js` | REQ-SALES-001 | AC-REQ-SALES-001-1 |
 | `server/routes/users.js` | REQ-SALES-001 | — |
-| `server/tests/req-sales-001.test.js` | REQ-SALES-001 | AC-REQ-SALES-001-1 |
+| `server/tests/req-sales-001.test.js` | REQ-SALES-001 | AC-REQ-SALES-001-1, AC-REQ-SALES-001-2 (notification) |
 | `client/leads.html` | REQ-SALES-001 | — |
 | `client/src/leads/*` | REQ-SALES-001 | — |
 
