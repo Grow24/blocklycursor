@@ -92,8 +92,15 @@
           <button id="btn-close-dispatch" type="button">Close</button>
         </div>
         <div id="cursor-api-result" class="cursor-api-result hidden">
-          <h4>Cursor API Response</h4>
+          <h4>1) Launch Response</h4>
           <pre id="cursor-api-response"></pre>
+          <h4>2) Cursor Agent Output (final reply for your prompt)</h4>
+          <p id="cursor-output-status" class="cursor-output-status"></p>
+          <pre id="cursor-agent-output">Waiting for Call API…</pre>
+          <p class="guide-note">
+            Cloud Agents work asynchronously. This panel polls until the run finishes, then shows Cursor&apos;s final reply.
+            Full conversation/PR also stays at the agent URL.
+          </p>
         </div>
       </div>
     </section>

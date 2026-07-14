@@ -26,12 +26,15 @@ const callApiBtn = document.getElementById('btn-call-api');
 const closeDispatchBtn = document.getElementById('btn-close-dispatch');
 const cursorApiResultEl = document.getElementById('cursor-api-result');
 const cursorApiResponseEl = document.getElementById('cursor-api-response');
+const cursorAgentOutputEl = document.getElementById('cursor-agent-output');
+const cursorOutputStatusEl = document.getElementById('cursor-output-status');
 let lastDispatchDeepLink = '';
 let lastDispatchWebUrl = '';
 let lastDispatchPrompt = '';
 let lastDispatchRequirementId = '';
 let lastDispatchPayloadFile = '';
 let callApiInFlight = false;
+let agentPollTimer = null;
 const changeStats = {
   added: 0,
   deleted: 0,
@@ -177,6 +180,9 @@ async function dispatchToCursor(requirement) {
     lastDispatchPayloadFile = result.payload_file || '';
     cursorApiResultEl.classList.add('hidden');
     cursorApiResponseEl.textContent = '';
+    if (cursorAgentOutputEl) cursorAgentOutputEl.textContent = 'Waiting for Call API…';
+    if (cursorOutputStatusEl) cursorOutputStatusEl.textContent = '';
+    stopAgentPolling();
     dispatchMessageEl.textContent = `Payload ready at ${result.payload_file}. If chat does not open automatically, copy prompt and paste into Cursor chat.`;
     dispatchPromptEl.value = lastDispatchPrompt;
     dispatchPanel.classList.remove('hidden');
@@ -201,10 +207,13 @@ async function callCursorApi() {
     return;
   }
 
+  stopAgentPolling();
   callApiInFlight = true;
   callApiBtn.disabled = true;
   cursorApiResultEl.classList.remove('hidden');
   cursorApiResponseEl.textContent = 'Calling Cursor Cloud Agents API...';
+  cursorOutputStatusEl.textContent = 'Launching agent…';
+  cursorAgentOutputEl.textContent = 'Waiting for Cursor final output…';
   setStatus('Calling Cursor API...', 'ok');
 
   try {
@@ -220,26 +229,123 @@ async function callCursorApi() {
     const result = await res.json();
     cursorApiResponseEl.textContent = JSON.stringify(result, null, 2);
     if (!res.ok || !result.ok) {
+      cursorOutputStatusEl.textContent = 'Launch failed';
+      cursorAgentOutputEl.textContent = result.message || 'Cursor API call failed';
       setStatus(result.message || 'Cursor API call failed', 'error');
       return;
     }
+
     setStatus(
       result.agent_url
         ? `Cursor agent launched: ${result.agent_url}`
-        : 'Cursor Cloud Agent launched — see API response below',
+        : 'Cursor Cloud Agent launched — waiting for final output…',
       'ok',
     );
+    cursorOutputStatusEl.textContent = `Agent launched. Polling for final output… (${result.agent_id || ''})`;
+    await pollAgentOutput(result.agent_id, result.run_id);
   } catch (err) {
     cursorApiResponseEl.textContent = JSON.stringify(
       { ok: false, message: err.message },
       null,
       2,
     );
+    cursorOutputStatusEl.textContent = 'Error';
+    cursorAgentOutputEl.textContent = err.message;
     setStatus(`Cursor API error: ${err.message}`, 'error');
   } finally {
     callApiInFlight = false;
     callApiBtn.disabled = false;
   }
+}
+
+function stopAgentPolling() {
+  if (agentPollTimer) {
+    clearTimeout(agentPollTimer);
+    agentPollTimer = null;
+  }
+}
+
+async function pollAgentOutput(agentId, runId) {
+  if (!agentId) {
+    cursorOutputStatusEl.textContent = 'No agent_id returned — cannot poll output';
+    cursorAgentOutputEl.textContent =
+      'Open the agent URL from the launch response, or retry Call API.';
+    return;
+  }
+
+  const startedAt = Date.now();
+  const maxMs = 12 * 60 * 1000; // 12 minutes
+  const intervalMs = 5000;
+  let attempt = 0;
+
+  const tick = async () => {
+    attempt += 1;
+    try {
+      const qs = new URLSearchParams({ agent_id: agentId });
+      if (runId) qs.set('run_id', runId);
+      const res = await fetch(`/api/cursor/agent-run?${qs.toString()}`);
+      const data = await res.json();
+
+      if (!res.ok || !data.ok) {
+        cursorOutputStatusEl.textContent = data.message || 'Poll failed';
+        cursorAgentOutputEl.textContent = JSON.stringify(data, null, 2);
+        if (Date.now() - startedAt < maxMs) {
+          agentPollTimer = setTimeout(tick, intervalMs);
+        }
+        return;
+      }
+
+      // Keep run_id if API resolved it late
+      if (data.run_id) runId = data.run_id;
+
+      cursorOutputStatusEl.textContent = `Status: ${data.status} · poll #${attempt}${
+        data.agent_url ? ` · ${data.agent_url}` : ''
+      }`;
+
+      if (data.done) {
+        const text =
+          data.output ||
+          '(No final text returned by Cursor yet. Open agent URL for full conversation / PR.)';
+        cursorAgentOutputEl.textContent = text;
+        setStatus(
+          data.status === 'FINISHED'
+            ? 'Cursor agent finished — final output shown in modal'
+            : `Cursor run ended: ${data.status}`,
+          data.status === 'FINISHED' ? 'ok' : 'error',
+        );
+        return;
+      }
+
+      cursorAgentOutputEl.textContent = [
+        'Cursor is still working on your prompt…',
+        `Status: ${data.status}`,
+        data.agent_url ? `Agent: ${data.agent_url}` : '',
+        'Final reply will appear here when the run finishes.',
+      ]
+        .filter(Boolean)
+        .join('\n');
+
+      if (Date.now() - startedAt >= maxMs) {
+        cursorOutputStatusEl.textContent = 'Polling timeout — open agent URL for live progress';
+        cursorAgentOutputEl.textContent = [
+          'Timed out waiting for final output in this modal.',
+          data.agent_url || `https://cursor.com/agents/${agentId}`,
+          'You can reopen Export Cursor Pack → Call API later, or open the agent URL above.',
+        ].join('\n');
+        setStatus('Cursor poll timeout — check agent URL', 'error');
+        return;
+      }
+
+      agentPollTimer = setTimeout(tick, intervalMs);
+    } catch (err) {
+      cursorOutputStatusEl.textContent = `Poll error: ${err.message}`;
+      if (Date.now() - startedAt < maxMs) {
+        agentPollTimer = setTimeout(tick, intervalMs);
+      }
+    }
+  };
+
+  await tick();
 }
 
 async function loadSample() {
@@ -290,6 +396,7 @@ copyPromptBtn.addEventListener('click', async () => {
 });
 callApiBtn.addEventListener('click', callCursorApi);
 closeDispatchBtn.addEventListener('click', () => {
+  stopAgentPolling();
   dispatchPanel.classList.add('hidden');
 });
 

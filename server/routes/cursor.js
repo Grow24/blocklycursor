@@ -9,7 +9,7 @@ const PACK_DIR = join(__dirname, '..', '..', 'pbmp-implementation-pack');
 const CURSOR_DIR = join(PACK_DIR, 'cursor');
 const CURSOR_WEB_CHAT_BASE =
   process.env.CURSOR_WEB_CHAT_URL || 'https://www.cursor.com';
-const CURSOR_AGENTS_API_URL =
+const CURSOR_AGENTS_API_BASE =
   process.env.CURSOR_AGENTS_API_URL || 'https://api.cursor.com/v1/agents';
 const CURSOR_API_KEY = process.env.CURSOR_API_KEY || '';
 const CURSOR_REPOSITORY =
@@ -17,7 +17,32 @@ const CURSOR_REPOSITORY =
 const CURSOR_REPO_REF = process.env.CURSOR_REPO_REF || 'main';
 const CURSOR_AUTO_CREATE_PR = process.env.CURSOR_AUTO_CREATE_PR === 'true';
 
+const TERMINAL_RUN_STATUSES = new Set(['FINISHED', 'ERROR', 'CANCELLED', 'EXPIRED']);
+
 const router = Router();
+
+function cursorAuthHeader() {
+  return `Basic ${Buffer.from(`${CURSOR_API_KEY}:`).toString('base64')}`;
+}
+
+async function cursorFetch(url, options = {}) {
+  const res = await fetch(url, {
+    ...options,
+    headers: {
+      Authorization: cursorAuthHeader(),
+      Accept: 'application/json',
+      ...(options.headers || {}),
+    },
+  });
+  const rawText = await res.text();
+  let json = null;
+  try {
+    json = JSON.parse(rawText);
+  } catch {
+    json = { raw: rawText };
+  }
+  return { res, json };
+}
 
 function buildCursorPayload(requirement, eoc) {
   return {
@@ -68,6 +93,7 @@ function buildChatPrompt(payload) {
     '2. Prefer structured_actions for machine-accurate action semantics.',
     '3. If information is missing, update pbmp-implementation-pack/gaps/gap-log.md.',
     '4. First provide an implementation plan before code.',
+    '5. At the end of your work, write a clear final reply summarizing: plan, files changed, tests, and any gaps.',
   ].join('\n');
 }
 
@@ -170,23 +196,11 @@ router.post('/call-api', async (req, res) => {
   };
 
   try {
-    const auth = Buffer.from(`${CURSOR_API_KEY}:`).toString('base64');
-    const apiRes = await fetch(CURSOR_AGENTS_API_URL, {
+    const { res: apiRes, json: apiJson } = await cursorFetch(CURSOR_AGENTS_API_BASE, {
       method: 'POST',
-      headers: {
-        Authorization: `Basic ${auth}`,
-        'Content-Type': 'application/json',
-      },
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(requestBody),
     });
-
-    const rawText = await apiRes.text();
-    let apiJson = null;
-    try {
-      apiJson = JSON.parse(rawText);
-    } catch {
-      apiJson = { raw: rawText };
-    }
 
     if (!apiRes.ok) {
       return res.status(apiRes.status).json({
@@ -194,7 +208,7 @@ router.post('/call-api', async (req, res) => {
         message: 'Cursor Cloud Agents API call failed',
         http_status: apiRes.status,
         request_summary: {
-          url: CURSOR_AGENTS_API_URL,
+          url: CURSOR_AGENTS_API_BASE,
           repository: CURSOR_REPOSITORY,
           ref: CURSOR_REPO_REF,
           requirement_id: requirementId || null,
@@ -204,26 +218,128 @@ router.post('/call-api', async (req, res) => {
     }
 
     const agent = apiJson?.agent || apiJson;
+    const runId = apiJson?.run?.id || agent?.latestRunId || null;
+    const agentId = agent?.id || null;
+    const agentUrl =
+      agent?.url || (agentId ? `https://cursor.com/agents/${agentId}` : null);
+
     return res.json({
       ok: true,
-      message: 'Cursor Cloud Agent launched',
+      message: 'Cursor Cloud Agent launched — polling for final output next',
       request_summary: {
-        url: CURSOR_AGENTS_API_URL,
+        url: CURSOR_AGENTS_API_BASE,
         repository: CURSOR_REPOSITORY,
         ref: CURSOR_REPO_REF,
         requirement_id: requirementId || null,
         prompt_chars: promptText.length,
       },
       cursor_response: apiJson,
-      agent_url: agent?.url || null,
-      agent_id: agent?.id || null,
-      run_id: apiJson?.run?.id || agent?.latestRunId || null,
+      agent_url: agentUrl,
+      agent_id: agentId,
+      run_id: runId,
+      status_poll_path: agentId
+        ? `/api/cursor/agent-run?agent_id=${encodeURIComponent(agentId)}${runId ? `&run_id=${encodeURIComponent(runId)}` : ''}`
+        : null,
     });
   } catch (err) {
     return res.status(502).json({
       ok: false,
       message: `Failed to reach Cursor API: ${err.message}`,
       gap: 'GAP-CURSOR-API-001',
+    });
+  }
+});
+
+/**
+ * Poll Cursor for agent run status + final assistant result text.
+ * GET /api/cursor/agent-run?agent_id=bc-...&run_id=run-...
+ */
+router.get('/agent-run', async (req, res) => {
+  if (!CURSOR_API_KEY) {
+    return res.status(503).json({
+      ok: false,
+      message: 'CURSOR_API_KEY is not configured',
+      gap: 'GAP-CURSOR-API-001',
+    });
+  }
+
+  const agentId = typeof req.query.agent_id === 'string' ? req.query.agent_id.trim() : '';
+  let runId = typeof req.query.run_id === 'string' ? req.query.run_id.trim() : '';
+
+  if (!agentId) {
+    return res.status(400).json({ ok: false, message: 'agent_id is required' });
+  }
+
+  try {
+    if (!runId) {
+      const { res: agentRes, json: agentJson } = await cursorFetch(
+        `${CURSOR_AGENTS_API_BASE}/${encodeURIComponent(agentId)}`,
+      );
+      if (!agentRes.ok) {
+        return res.status(agentRes.status).json({
+          ok: false,
+          message: 'Failed to fetch Cursor agent',
+          cursor_response: agentJson,
+        });
+      }
+      runId = agentJson?.latestRunId || '';
+      if (!runId) {
+        return res.json({
+          ok: true,
+          done: false,
+          status: agentJson?.status || 'WAITING',
+          message: 'Agent exists but no run id yet — keep polling',
+          agent_id: agentId,
+          run_id: null,
+          agent_url: agentJson?.url || `https://cursor.com/agents/${agentId}`,
+          output: null,
+        });
+      }
+    }
+
+    const { res: runRes, json: runJson } = await cursorFetch(
+      `${CURSOR_AGENTS_API_BASE}/${encodeURIComponent(agentId)}/runs/${encodeURIComponent(runId)}`,
+    );
+
+    if (!runRes.ok) {
+      return res.status(runRes.status).json({
+        ok: false,
+        message: 'Failed to fetch Cursor run',
+        agent_id: agentId,
+        run_id: runId,
+        cursor_response: runJson,
+      });
+    }
+
+    const status = runJson?.status || 'UNKNOWN';
+    const done = TERMINAL_RUN_STATUSES.has(status);
+    const output =
+      runJson?.result ||
+      runJson?.text ||
+      runJson?.summary ||
+      null;
+
+    return res.json({
+      ok: true,
+      done,
+      status,
+      agent_id: agentId,
+      run_id: runId,
+      agent_url: `https://cursor.com/agents/${agentId}`,
+      duration_ms: runJson?.durationMs ?? null,
+      git: runJson?.git || null,
+      output: done ? output : null,
+      message: done
+        ? status === 'FINISHED'
+          ? 'Cursor agent finished — final output below'
+          : `Cursor run ended with status ${status}`
+        : `Cursor run in progress (${status})`,
+      cursor_response: runJson,
+    });
+  } catch (err) {
+    return res.status(502).json({
+      ok: false,
+      message: `Failed to poll Cursor API: ${err.message}`,
     });
   }
 });
