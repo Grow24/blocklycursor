@@ -1,0 +1,24 @@
+{
+  "expected_output_contract_id": "EOC-FUNCALL-001",
+  "source_stage": "Product Discovery",
+  "business_goal_id": "GOAL-FUNCALL-001",
+  "requirement_ids": [
+    "REQ-FUNCALL-001"
+  ],
+  "expected_business_outcome": "Test call function block",
+  "in_scope": [
+    "Create task \"Follow up with customer\" for role Sales Manager"
+  ],
+  "out_of_scope": [],
+  "actors": [
+    "Sales Manager"
+  ],
+  "data_entities": [],
+  "business_rules": [],
+  "acceptance_criteria": [
+    "AC-REQ-FUNCALL-001-1: Given score > 80, then task is created"
+  ],
+  "nfrs": {},
+  "approved_by": "Pending",
+  "status": "Approved for Design"
+}

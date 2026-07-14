@@ -50,9 +50,24 @@ Required fields:
 2. Open `cursor-payload-*.json` under `pbmp-implementation-pack/cursor/`  
 3. Use `implementation-prompt.md` + rules in IDE  
 
-### B. Automation (later / Ops)
+### B. Automation (Cloud Agents API — Call API button)
 
-- Cloud Agents API: create agent run with pack as prompt context  
+Workbench modal → **Call API** calls `POST /api/cursor/call-api`, which launches a Cursor Cloud Agent with:
+- the dispatch chat prompt
+- the approved `cursor-payload-<REQ>.json` contents
+
+Required env (server):
+```bash
+CURSOR_API_KEY=...                 # Cursor Dashboard → API Keys
+CURSOR_REPOSITORY=https://github.com/Grow24/blocklycursor
+CURSOR_REPO_REF=main
+CURSOR_AUTO_CREATE_PR=false        # optional
+```
+
+If keys are missing, the UI shows a clear config error under the Call API button (`GAP-CURSOR-API-001`).
+
+### C. CLI / MCP (later / Ops)
+
 - Headless CLI: CI job with API key + pack path  
 - MCP: expose approved requirements + EOC as read-only tools  
 

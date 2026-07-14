@@ -4,6 +4,8 @@
 |-----------|----------------|------------------------|
 | `server/lib/data-store.js` | REQ-SALES-001 | AC-REQ-SALES-001-1 |
 | `server/lib/rule-engine.js` | REQ-SALES-001 | AC-REQ-SALES-001-1 |
+| `server/lib/structured-action-executor.js` | REQ-SALES-001 | AC-REQ-SALES-001-1 |
+| `server/data/requirements/REQ-SALES-001.json` | REQ-SALES-001 | — |
 | `server/routes/leads.js` | REQ-SALES-001 | AC-REQ-SALES-001-1 |
 | `server/routes/tasks.js` | REQ-SALES-001 | AC-REQ-SALES-001-1 |
 | `server/routes/notifications.js` | REQ-SALES-001 | AC-REQ-SALES-001-1 |

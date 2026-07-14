@@ -7,7 +7,7 @@ import express from 'express';
 import cors from 'cors';
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
-import { existsSync } from 'fs';
+import { existsSync, readFileSync } from 'fs';
 import requirementsRouter from './routes/requirements.js';
 import leadsRouter from './routes/leads.js';
 import tasksRouter from './routes/tasks.js';
@@ -20,6 +20,30 @@ import { RULE_CONFIG } from './lib/rule-engine.js';
 import { errorHandler, notFoundHandler } from './middleware/error-handler.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
+
+/** Load key=value pairs from repo-root .env without adding a dependency. */
+function loadEnvFile(filePath) {
+  if (!existsSync(filePath)) return;
+  const lines = readFileSync(filePath, 'utf8').split(/\r?\n/);
+  for (const line of lines) {
+    const trimmed = line.trim();
+    if (!trimmed || trimmed.startsWith('#')) continue;
+    const eq = trimmed.indexOf('=');
+    if (eq <= 0) continue;
+    const key = trimmed.slice(0, eq).trim();
+    let value = trimmed.slice(eq + 1).trim();
+    if (
+      (value.startsWith('"') && value.endsWith('"')) ||
+      (value.startsWith("'") && value.endsWith("'"))
+    ) {
+      value = value.slice(1, -1);
+    }
+    if (process.env[key] === undefined) process.env[key] = value;
+  }
+}
+
+loadEnvFile(join(__dirname, '..', '.env'));
+
 const app = express();
 const PORT = process.env.PORT || 3000;
 const clientDist = join(__dirname, '..', 'client', 'dist');

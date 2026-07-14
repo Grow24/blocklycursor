@@ -16,6 +16,7 @@
         <a href="/leads">Lead Management</a>
       </nav>
       <div class="toolbar">
+        <button id="btn-guide" type="button">Help &amp; JSON Mapping</button>
         <button id="btn-export" type="button">Export Requirement JSON</button>
         <button id="btn-cursor" type="button">Export Cursor Pack</button>
         <button id="btn-save" type="button" class="primary">Save &amp; Validate</button>
@@ -26,6 +27,58 @@
     <main>
       <div id="blocklyDiv"></div>
     </main>
+    <aside id="guide-panel" class="guide-panel hidden" aria-label="Data entry and JSON mapping guide">
+      <div class="guide-card">
+        <header class="guide-header">
+          <h2>Data Entry &amp; JSON Mapping</h2>
+          <button id="btn-close-guide" type="button" class="guide-close" aria-label="Close guide">×</button>
+        </header>
+
+        <section class="guide-section">
+          <h3>Manual entry (without Load Sample)</h3>
+          <ol id="guide-steps" class="guide-steps"></ol>
+          <p class="guide-note">
+            Blocks must connect under <strong>Requirement ID</strong> body slot. Status bar shows add/edit events as you work.
+          </p>
+        </section>
+
+        <section class="guide-section">
+          <h3>Blockly → Requirement JSON → Cursor</h3>
+          <div class="guide-table-wrap">
+            <table class="guide-table">
+              <thead>
+                <tr>
+                  <th>Blockly block</th>
+                  <th>Fields</th>
+                  <th>Requirement JSON</th>
+                  <th>Cursor payload</th>
+                </tr>
+              </thead>
+              <tbody id="guide-mapping-rows"></tbody>
+            </table>
+          </div>
+        </section>
+
+        <section class="guide-section">
+          <div class="guide-preview-header">
+            <h3>Live preview from current workspace</h3>
+            <button id="btn-refresh-preview" type="button">Refresh preview</button>
+          </div>
+          <div class="guide-preview-grid">
+            <div>
+              <h4>Requirement JSON</h4>
+              <pre id="preview-requirement" class="guide-json"></pre>
+            </div>
+            <div>
+              <h4>Cursor payload JSON</h4>
+              <pre id="preview-cursor" class="guide-json"></pre>
+            </div>
+          </div>
+          <p id="preview-error" class="guide-error hidden"></p>
+        </section>
+      </div>
+    </aside>
+
     <section id="cursor-dispatch-panel" class="dispatch-panel hidden">
       <div class="dispatch-card">
         <h3>Cursor Dispatch Ready</h3>
@@ -35,7 +88,12 @@
           <button id="btn-open-cursor" type="button" class="primary">Open Cursor Chat</button>
           <button id="btn-open-cursor-web" type="button">Open Cursor Web Chat</button>
           <button id="btn-copy-prompt" type="button">Copy Prompt</button>
+          <button id="btn-call-api" type="button">Call API</button>
           <button id="btn-close-dispatch" type="button">Close</button>
+        </div>
+        <div id="cursor-api-result" class="cursor-api-result hidden">
+          <h4>Cursor API Response</h4>
+          <pre id="cursor-api-response"></pre>
         </div>
       </div>
     </section>

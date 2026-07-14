@@ -1,0 +1,75 @@
+{
+  "source": "PBMP_Product_Discovery",
+  "instruction": "Implement only the approved PBMP contract. Do not invent requirements, fields, APIs, roles, screens, workflows, or business rules. If something is missing, create a Gap Log entry instead of guessing.",
+  "requirement_id": "REQ-FUNCCALL-001",
+  "goal": "Test Call Function block",
+  "trigger": "Lead score updated",
+  "condition": {
+    "field": "lead_score",
+    "operator": ">",
+    "value": "80"
+  },
+  "conditions": [
+    {
+      "field": "lead_score",
+      "operator": ">",
+      "value": "80"
+    }
+  ],
+  "actions": [
+    "Create task \"Follow up with customer\" for role Sales Manager"
+  ],
+  "structured_actions": [
+    {
+      "action": "create_task",
+      "title": "Follow up with customer",
+      "assigned_role": "Sales Manager"
+    }
+  ],
+  "acceptance_criteria": [
+    "Given score > 80, then task is created"
+  ],
+  "nfrs": {},
+  "out_of_scope": [],
+  "procedures": [],
+  "functions": [
+    {
+      "kind": "function_call",
+      "name": "Calculate Lead Score"
+    }
+  ],
+  "expected_output_contract": {
+    "expected_output_contract_id": "EOC-FUNCCALL-001",
+    "source_stage": "Product Discovery",
+    "business_goal_id": "GOAL-FUNCCALL-001",
+    "requirement_ids": [
+      "REQ-FUNCCALL-001"
+    ],
+    "expected_business_outcome": "Test Call Function block",
+    "in_scope": [
+      "Create task \"Follow up with customer\" for role Sales Manager"
+    ],
+    "out_of_scope": [],
+    "actors": [
+      "Sales Manager"
+    ],
+    "data_entities": [],
+    "business_rules": [],
+    "acceptance_criteria": [
+      "AC-REQ-FUNCCALL-001-1: Given score > 80, then task is created"
+    ],
+    "nfrs": {},
+    "approved_by": "Pending",
+    "status": "Approved for Design"
+  },
+  "pipeline": [
+    "Blockly Requirement Blocks",
+    "PBMP Requirement JSON",
+    "PBMP validation and approval",
+    "Expected Output Contract",
+    "Cursor Implementation Pack",
+    "Cursor Cloud Agent API / Headless CLI / MCP",
+    "Code branch / PR",
+    "Tests + review + deployment gates"
+  ]
+}

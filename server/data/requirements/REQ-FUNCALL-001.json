@@ -1,6 +1,6 @@
 {
-  "requirement_id": "REQ-SALES-001",
-  "goal": "Improve high-score lead follow-up",
+  "requirement_id": "REQ-FUNCALL-001",
+  "goal": "Test call function block",
   "actor": "Sales Manager",
   "trigger": "Lead score updated",
   "condition": {
@@ -16,19 +16,13 @@
     }
   ],
   "actions": [
-    "Create task \"Follow up with customer\" for role Sales Manager",
-    "Notify Sales Manager: High-score lead needs follow-up"
+    "Create task \"Follow up with customer\" for role Sales Manager"
   ],
   "structured_actions": [
     {
       "action": "create_task",
       "title": "Follow up with customer",
       "assigned_role": "Sales Manager"
-    },
-    {
-      "action": "send_notification",
-      "assigned_role": "Sales Manager",
-      "message": "High-score lead needs follow-up"
     }
   ],
   "data_entities": [],
@@ -39,14 +33,14 @@
   "nfrs": {},
   "approvals": [],
   "outputs": [],
-  "notifications": [
+  "notifications": [],
+  "procedures": [],
+  "functions": [
     {
-      "role": "Sales Manager",
-      "message": "High-score lead needs follow-up"
+      "kind": "function_call",
+      "name": "Calculate Lead Score"
     }
   ],
-  "procedures": [],
-  "functions": [],
   "out_of_scope": [],
   "status": "Validated",
   "blockly_workspace": {
@@ -55,39 +49,39 @@
       "blocks": [
         {
           "type": "pbmp_requirement_root",
-          "id": "root1",
-          "x": 50,
-          "y": 50,
+          "id": "Q$av`@)S)P-Jc!3##j]!",
+          "x": 70,
+          "y": 10,
           "deletable": false,
           "fields": {
-            "REQ_ID": "REQ-SALES-001"
+            "REQ_ID": "REQ-FUNCALL-001"
           },
           "inputs": {
             "BODY": {
               "block": {
                 "type": "pbmp_goal",
-                "id": "g1",
+                "id": "u^[bIDhvo9^?-?_9-%99",
                 "fields": {
-                  "GOAL_TEXT": "Improve high-score lead follow-up"
+                  "GOAL_TEXT": "Test call function block"
                 },
                 "next": {
                   "block": {
                     "type": "pbmp_actor",
-                    "id": "a1",
+                    "id": "/K:CSkfIGb~Qfui6+n#x",
                     "fields": {
                       "ACTOR": "Sales Manager"
                     },
                     "next": {
                       "block": {
                         "type": "pbmp_trigger",
-                        "id": "t1",
+                        "id": "ddbUNTFOh[EOc2*%Wk5W",
                         "fields": {
                           "TRIGGER": "Lead score updated"
                         },
                         "next": {
                           "block": {
                             "type": "pbmp_condition",
-                            "id": "c1",
+                            "id": "7O}x@0kWz7LHBEnv])^D",
                             "fields": {
                               "FIELD": "lead_score",
                               "OPERATOR": ">",
@@ -96,27 +90,17 @@
                             "next": {
                               "block": {
                                 "type": "pbmp_create_task",
-                                "id": "act1",
+                                "id": ")-#ulq+^^~89eA4[ns8r",
                                 "fields": {
                                   "TITLE": "Follow up with customer",
                                   "ASSIGNED_ROLE": "Sales Manager"
                                 },
                                 "next": {
                                   "block": {
-                                    "type": "pbmp_notify",
-                                    "id": "act2",
+                                    "type": "pbmp_acceptance",
+                                    "id": "4]Qa)srSXyWRab!*|6%F",
                                     "fields": {
-                                      "ROLE": "Sales Manager",
-                                      "MESSAGE": "High-score lead needs follow-up"
-                                    },
-                                    "next": {
-                                      "block": {
-                                        "type": "pbmp_acceptance",
-                                        "id": "ac1",
-                                        "fields": {
-                                          "AC": "Given score > 80, then task is created"
-                                        }
-                                      }
+                                      "AC": "Given score > 80, then task is created"
                                     }
                                   }
                                 }
@@ -131,10 +115,19 @@
               }
             }
           }
+        },
+        {
+          "type": "pbmp_function_call",
+          "id": "$N#5Fz@Y1!s..^b*-`?_",
+          "x": 470,
+          "y": 470,
+          "fields": {
+            "FUNC_NAME": "Calculate Lead Score"
+          }
         }
       ]
     },
     "backpack": []
   },
-  "saved_at": "2026-07-14T10:19:56.133Z"
+  "saved_at": "2026-07-13T15:12:02.557Z"
 }
