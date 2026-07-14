@@ -26,7 +26,9 @@ FROM node:20-alpine AS runner
 WORKDIR /app
 
 ENV NODE_ENV=production
-ENV PORT=8080
+# Zeabur injects PORT; do NOT set PORT=${WEB_PORT} in dashboard (stays literal).
+# Keep dashboard PORT=3000 and Networking container port = 3000 (must match).
+ENV PORT=3000
 ENV PBMP_DATA_DIR=/app/data/requirements
 ENV PBMP_LMS_DATA_DIR=/app/data/lms
 
@@ -40,7 +42,6 @@ COPY --from=builder /app/client/dist ./client/dist
 
 RUN mkdir -p /app/data/requirements /app/data/lms
 
-# Zeabur Networking maps public domain → container HTTP 8080
-EXPOSE 8080
+EXPOSE 3000
 
 CMD ["node", "server/index.js"]
