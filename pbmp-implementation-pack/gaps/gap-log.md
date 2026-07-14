@@ -9,6 +9,9 @@
 | GAP-REQ-SALES-001-05 | REQ-SALES-001 | Missing Acceptance Criteria | Structured action includes `send_notification` to Sales Manager, but approved AC list includes only task creation. What is the approved AC ID and expected assertion for notification behavior? | Open | Development | Business Analyst |
 | GAP-CURSOR-API-001 | Cursor Integration (Ops) | Missing Ops Config | Call API button needs `CURSOR_API_KEY` + `CURSOR_REPOSITORY` to call Cursor Cloud Agents API. Confirm approved API key source, target GitHub repo URL, and whether autoCreatePR is allowed. | Open | Development | Product Manager / Ops |
 
+| GAP-REQ-SALES-005-01 | REQ-SALES-005 | Inconsistent Acceptance Criteria | The condition specifies `lead_score <= 40` but AC-REQ-SALES-005-1 states "Given score > 40, then task is created". These are logically contradictory. Implemented using condition `<= 40` as source of truth. Clarification needed from Business Analyst. | Open | Development | Business Analyst |
+| GAP-REQ-SALES-005-02 | REQ-SALES-005 | Misleading Notification Message | The notification message says "High-score lead needs follow-up" but the rule triggers for low scores (≤40). Consider updating message to reflect low-score context. | Open | Development | Business Analyst |
+
 ## Template
 
 ```json

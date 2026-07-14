@@ -66,8 +66,20 @@ export function seedDefaults() {
     role: 'Business Owner',
     created_at: new Date().toISOString(),
   };
+  /**
+   * PBMP Traceability
+   * Requirement: REQ-SALES-005
+   * Actor: Product Manager
+   */
+  const productManager = {
+    id: randomUUID(),
+    name: 'Taylor Chen',
+    email: 'taylor.chen@example.com',
+    role: 'Product Manager',
+    created_at: new Date().toISOString(),
+  };
 
-  store.users.push(salesManager, businessOwner);
+  store.users.push(salesManager, businessOwner, productManager);
   writeStore(store);
   return store;
 }

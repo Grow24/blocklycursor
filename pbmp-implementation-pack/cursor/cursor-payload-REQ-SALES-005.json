@@ -1,0 +1,77 @@
+{
+  "source": "PBMP_Product_Discovery",
+  "instruction": "Implement only the approved PBMP contract. Do not invent requirements, fields, APIs, roles, screens, workflows, or business rules. If something is missing, create a Gap Log entry instead of guessing.",
+  "requirement_id": "REQ-SALES-005",
+  "goal": "Improve lead follow-up",
+  "trigger": "Lead score updated",
+  "condition": {
+    "field": "lead_score",
+    "operator": "<=",
+    "value": "40"
+  },
+  "conditions": [
+    {
+      "field": "lead_score",
+      "operator": "<=",
+      "value": "40"
+    }
+  ],
+  "actions": [
+    "Create task \"Follow up with customer\" for role Product Manager",
+    "Notify Product Manager: High-score lead needs follow-up"
+  ],
+  "structured_actions": [
+    {
+      "action": "create_task",
+      "title": "Follow up with customer",
+      "assigned_role": "Product Manager"
+    },
+    {
+      "action": "send_notification",
+      "assigned_role": "Product Manager",
+      "message": "High-score lead needs follow-up"
+    }
+  ],
+  "acceptance_criteria": [
+    "Given score > 40, then task is created"
+  ],
+  "nfrs": {},
+  "out_of_scope": [],
+  "procedures": [],
+  "functions": [],
+  "expected_output_contract": {
+    "expected_output_contract_id": "EOC-SALES-005",
+    "source_stage": "Product Discovery",
+    "business_goal_id": "GOAL-SALES-005",
+    "requirement_ids": [
+      "REQ-SALES-005"
+    ],
+    "expected_business_outcome": "Improve lead follow-up",
+    "in_scope": [
+      "Create task \"Follow up with customer\" for role Product Manager",
+      "Notify Product Manager: High-score lead needs follow-up"
+    ],
+    "out_of_scope": [],
+    "actors": [
+      "Product Manager"
+    ],
+    "data_entities": [],
+    "business_rules": [],
+    "acceptance_criteria": [
+      "AC-REQ-SALES-005-1: Given score > 40, then task is created"
+    ],
+    "nfrs": {},
+    "approved_by": "Pending",
+    "status": "Approved for Design"
+  },
+  "pipeline": [
+    "Blockly Requirement Blocks",
+    "PBMP Requirement JSON",
+    "PBMP validation and approval",
+    "Expected Output Contract",
+    "Cursor Implementation Pack",
+    "Cursor Cloud Agent API / Headless CLI / MCP",
+    "Code branch / PR",
+    "Tests + review + deployment gates"
+  ]
+}
