@@ -1,4 +1,6 @@
 # Multi-stage build for PBMP (Blockly + Express API)
+# Note: Zeabur often injects NODE_ENV=production during build, which would
+# skip client tools — always force a full client install in the builder stage.
 FROM node:20-alpine AS builder
 
 WORKDIR /app
@@ -7,7 +9,10 @@ COPY package.json ./
 COPY client/package.json ./client/
 COPY server/package.json ./server/
 
-RUN npm install && npm install --prefix client && npm install --prefix server
+# Skip root postinstall here; install each package tree explicitly
+RUN npm install --ignore-scripts \
+  && NPM_CONFIG_PRODUCTION=false npm install --prefix client --include=dev \
+  && npm install --prefix server --omit=dev
 
 COPY client ./client
 COPY server ./server
@@ -21,6 +26,7 @@ FROM node:20-alpine AS runner
 WORKDIR /app
 
 ENV NODE_ENV=production
+ENV PORT=8080
 ENV PBMP_DATA_DIR=/app/data/requirements
 ENV PBMP_LMS_DATA_DIR=/app/data/lms
 
@@ -34,6 +40,7 @@ COPY --from=builder /app/client/dist ./client/dist
 
 RUN mkdir -p /app/data/requirements /app/data/lms
 
-EXPOSE 3000
+# Zeabur Networking maps public domain → container HTTP 8080
+EXPOSE 8080
 
 CMD ["node", "server/index.js"]

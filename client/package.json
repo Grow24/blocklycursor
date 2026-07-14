@@ -15,9 +15,7 @@
     "@blockly/workspace-backpack": "^7.0.9",
     "@blockly/workspace-minimap": "^0.3.3",
     "@blockly/zoom-to-fit": "^7.0.3",
-    "blockly": "^12.0.0"
-  },
-  "devDependencies": {
+    "blockly": "^12.0.0",
     "vite": "^6.2.0"
   }
 }
