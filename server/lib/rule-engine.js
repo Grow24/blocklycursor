@@ -9,12 +9,58 @@ import {
   listUsers,
   appendAuditEntry,
 } from './data-store.js';
+import { readFileSync } from 'fs';
+import { dirname, join } from 'path';
+import { fileURLToPath } from 'url';
 
-const REQUIREMENT_ID = 'REQ-SALES-001';
-const SCORE_THRESHOLD = 80;
-const TASK_TITLE = 'Follow up with customer';
-const ASSIGNED_ROLE = 'Sales Manager';
-const NOTIFICATION_MESSAGE = 'High-score lead needs follow-up';
+const __dirname = dirname(fileURLToPath(import.meta.url));
+
+function loadReqSales001Contract() {
+  const payloadPath = join(
+    __dirname,
+    '..',
+    '..',
+    'pbmp-implementation-pack',
+    'cursor',
+    'cursor-payload-REQ-SALES-001.json',
+  );
+  const payload = JSON.parse(readFileSync(payloadPath, 'utf8'));
+
+  const condition = payload.conditions?.[0] || payload.condition;
+  const createTaskAction = payload.structured_actions?.find((item) => item.action === 'create_task');
+  const sendNotificationAction = payload.structured_actions?.find(
+    (item) => item.action === 'send_notification',
+  );
+
+  if (
+    !payload.requirement_id ||
+    !payload.trigger ||
+    !condition?.field ||
+    !condition?.operator ||
+    condition.value === undefined ||
+    !createTaskAction?.title ||
+    !createTaskAction?.assigned_role ||
+    !sendNotificationAction?.assigned_role ||
+    !sendNotificationAction?.message
+  ) {
+    throw new Error('REQ-SALES-001 contract is incomplete in cursor payload');
+  }
+
+  return {
+    requirementId: payload.requirement_id,
+    trigger: payload.trigger,
+    condition,
+    createTaskAction,
+    sendNotificationAction,
+  };
+}
+
+const CONTRACT = loadReqSales001Contract();
+const REQUIREMENT_ID = CONTRACT.requirementId;
+const TRIGGER = CONTRACT.trigger;
+const CONDITION = CONTRACT.condition;
+const CREATE_TASK_ACTION = CONTRACT.createTaskAction;
+const SEND_NOTIFICATION_ACTION = CONTRACT.sendNotificationAction;
 
 function evaluateCondition(field, operator, value, lead) {
   const actual = lead[field];
@@ -38,17 +84,13 @@ function evaluateCondition(field, operator, value, lead) {
 
 /**
  * Executes REQ-SALES-001 when lead score is updated.
- * Creates task + notification only when score crosses threshold (≤80 → >80).
- * GAP-REQ-SALES-001-04: threshold-crossing per acceptance scenario (79 → 81).
+ * Trigger: Lead score updated; Condition: lead_score > 80.
  */
 export function onLeadScoreUpdated(lead, previousScore) {
-  const condition = { field: 'lead_score', operator: '>', value: String(SCORE_THRESHOLD) };
-  const crossedThreshold =
-    Number(previousScore) <= SCORE_THRESHOLD && Number(lead.lead_score) > SCORE_THRESHOLD;
   const matchesCondition = evaluateCondition(
-    condition.field,
-    condition.operator,
-    condition.value,
+    CONDITION.field,
+    CONDITION.operator,
+    CONDITION.value,
     lead,
   );
 
@@ -62,59 +104,51 @@ export function onLeadScoreUpdated(lead, previousScore) {
       new_score: lead.lead_score,
       rule_evaluated: true,
       condition_met: matchesCondition,
-      crossed_threshold: crossedThreshold,
     },
   });
 
-  if (!matchesCondition || !crossedThreshold) {
+  if (!matchesCondition) {
     return { triggered: false, tasks: [], notifications: [] };
   }
 
-  const managers = listUsers({ role: ASSIGNED_ROLE });
+  const managers = listUsers({ role: CREATE_TASK_ACTION.assigned_role });
   const primaryManager = managers[0] || null;
 
   const task = createTask({
-    title: TASK_TITLE,
-    assigned_role: ASSIGNED_ROLE,
+    title: CREATE_TASK_ACTION.title,
+    assigned_role: CREATE_TASK_ACTION.assigned_role,
     assigned_to: primaryManager?.id || null,
     lead_id: lead.id,
     requirement_id: REQUIREMENT_ID,
   });
 
-  const notifications = [];
-  if (managers.length === 0) {
-    notifications.push(
-      createNotification({
-        role: ASSIGNED_ROLE,
-        recipient_id: null,
-        message: NOTIFICATION_MESSAGE,
-        lead_id: lead.id,
-        requirement_id: REQUIREMENT_ID,
-      }),
-    );
-  } else {
-    for (const manager of managers) {
-      notifications.push(
-        createNotification({
-          role: ASSIGNED_ROLE,
-          recipient_id: manager.id,
-          message: NOTIFICATION_MESSAGE,
-          lead_id: lead.id,
-          requirement_id: REQUIREMENT_ID,
-        }),
-      );
-    }
-  }
+  const notifications = managers.map((manager) =>
+    createNotification({
+      role: SEND_NOTIFICATION_ACTION.assigned_role,
+      recipient_id: manager.id,
+      message: SEND_NOTIFICATION_ACTION.message,
+      lead_id: lead.id,
+      requirement_id: REQUIREMENT_ID,
+    }),
+  );
 
   return { triggered: true, tasks: [task], notifications };
 }
 
 export const RULE_CONFIG = {
   requirement_id: REQUIREMENT_ID,
-  trigger: 'Lead score updated',
-  condition: { field: 'lead_score', operator: '>', value: String(SCORE_THRESHOLD) },
+  trigger: TRIGGER,
+  condition: CONDITION,
   structured_actions: [
-    { action: 'create_task', title: TASK_TITLE, assigned_role: ASSIGNED_ROLE },
-    { action: 'send_notification', assigned_role: ASSIGNED_ROLE, message: NOTIFICATION_MESSAGE },
+    {
+      action: 'create_task',
+      title: CREATE_TASK_ACTION.title,
+      assigned_role: CREATE_TASK_ACTION.assigned_role,
+    },
+    {
+      action: 'send_notification',
+      assigned_role: SEND_NOTIFICATION_ACTION.assigned_role,
+      message: SEND_NOTIFICATION_ACTION.message,
+    },
   ],
 };
