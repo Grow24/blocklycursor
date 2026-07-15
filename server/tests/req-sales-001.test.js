@@ -99,6 +99,38 @@ describe('REQ-SALES-001: High-score lead follow-up', () => {
       const tasksRes = await request(app).get('/api/tasks').expect(200);
       assert.equal(tasksRes.body.tasks.length, 1);
     });
+
+    it('sends notification to Sales Manager when task is created', async () => {
+      const createRes = await request(app)
+        .post('/api/leads')
+        .send({
+          name: 'Notify Lead',
+          email: 'notify@example.com',
+          lead_score: 79,
+        })
+        .expect(201);
+
+      const leadId = createRes.body.lead.id;
+
+      const scoreRes = await request(app)
+        .patch(`/api/leads/${leadId}/score`)
+        .send({ lead_score: 81 })
+        .expect(200);
+
+      assert.equal(scoreRes.body.rule_result.triggered, true);
+      assert.ok(scoreRes.body.rule_result.notifications.length >= 1);
+      assert.equal(
+        scoreRes.body.rule_result.notifications[0].message,
+        'High-score lead needs follow-up',
+      );
+      assert.equal(scoreRes.body.rule_result.notifications[0].role, 'Sales Manager');
+
+      const notificationsRes = await request(app)
+        .get('/api/notifications?role=Sales Manager')
+        .expect(200);
+      assert.ok(notificationsRes.body.notifications.length >= 1);
+      assert.equal(notificationsRes.body.notifications[0].lead_id, leadId);
+    });
   });
 
   describe('Lead management API', () => {
