@@ -82,6 +82,42 @@ describe('REQ-SALES-001: High-score lead follow-up', () => {
       assert.equal(tasksRes.body.tasks[0].lead_id, leadId);
     });
 
+    it('sends notification to Sales Manager when score crosses threshold (per structured_actions)', async () => {
+      const createRes = await request(app)
+        .post('/api/leads')
+        .send({
+          name: 'Notification Test Lead',
+          email: 'notify-test@example.com',
+          company: 'Notify Corp',
+          lead_score: 79,
+        })
+        .expect(201);
+
+      const leadId = createRes.body.lead.id;
+
+      const scoreRes = await request(app)
+        .patch(`/api/leads/${leadId}/score`)
+        .send({ lead_score: 81 })
+        .expect(200);
+
+      assert.equal(scoreRes.body.rule_result.triggered, true);
+      assert.ok(
+        scoreRes.body.rule_result.notifications.length >= 1,
+        'Expected at least one notification per structured_actions',
+      );
+      assert.equal(
+        scoreRes.body.rule_result.notifications[0].message,
+        'High-score lead needs follow-up',
+      );
+      assert.equal(scoreRes.body.rule_result.notifications[0].role, 'Sales Manager');
+
+      const notifRes = await request(app)
+        .get('/api/notifications?role=Sales Manager')
+        .expect(200);
+      const leadNotifications = notifRes.body.notifications.filter((n) => n.lead_id === leadId);
+      assert.ok(leadNotifications.length >= 1, 'Notification should be persisted');
+    });
+
     it('does not create duplicate task when score stays above threshold', async () => {
       const createRes = await request(app)
         .post('/api/leads')
