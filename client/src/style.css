@@ -145,6 +145,40 @@ main {
   resize: vertical;
 }
 
+.token-estimate-banner {
+  margin: 0.75rem 0 0.25rem;
+  padding: 0.75rem 0.85rem;
+  border: 1px solid #f59e0b;
+  border-radius: 8px;
+  background: #fffbeb;
+  color: #78350f;
+}
+
+.token-estimate-banner strong {
+  display: block;
+  margin-bottom: 0.35rem;
+  font-size: 0.9rem;
+}
+
+#token-estimate-summary {
+  margin: 0 0 0.4rem;
+  font-size: 0.88rem;
+  font-weight: 600;
+}
+
+#token-estimate-details {
+  margin: 0;
+  padding-left: 1.1rem;
+  font-size: 0.8rem;
+  line-height: 1.45;
+}
+
+.token-estimate-note {
+  margin: 0.45rem 0 0;
+  font-size: 0.75rem;
+  opacity: 0.9;
+}
+
 .dispatch-actions {
   margin-top: 0.75rem;
   display: flex;

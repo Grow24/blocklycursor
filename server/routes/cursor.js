@@ -97,6 +97,40 @@ function buildChatPrompt(payload) {
   ].join('\n');
 }
 
+function buildFullPromptText(chatPrompt, payloadJson) {
+  return [
+    chatPrompt,
+    '',
+    'APPROVED CURSOR PAYLOAD (source of truth — do not invent beyond this):',
+    payloadJson ? JSON.stringify(payloadJson, null, 2) : '(payload file not found on server — use chat_prompt only)',
+  ].join('\n');
+}
+
+/**
+ * Approximate token estimate for UI warning before Call API.
+ * Uses ~4 characters/token (common English heuristic). Not Cursor's exact tokenizer.
+ */
+function estimateTokenUsage(promptText) {
+  const chars = promptText.length;
+  const words = promptText.trim() ? promptText.trim().split(/\s+/).length : 0;
+  const estimatedInputTokens = Math.max(1, Math.ceil(chars / 4));
+  // Cloud Agents also pull repo context / tool turns — show a conservative range.
+  const estimatedOutputTokens = Math.ceil(estimatedInputTokens * 0.35);
+  const estimatedTotalLow = estimatedInputTokens + estimatedOutputTokens;
+  const estimatedTotalHigh = Math.ceil(estimatedInputTokens * 3 + 2000);
+
+  return {
+    method: 'approx_chars_div_4',
+    note: 'Estimate only (~4 chars/token). Cursor Cloud Agents may use more for repo context and tool calls.',
+    characters: chars,
+    words,
+    estimated_input_tokens: estimatedInputTokens,
+    estimated_output_tokens: estimatedOutputTokens,
+    estimated_total_tokens_low: estimatedTotalLow,
+    estimated_total_tokens_high: estimatedTotalHigh,
+  };
+}
+
 router.post('/dispatch', (req, res) => {
   const requirement = req.body;
   const result = validateRequirement(requirement);
@@ -117,6 +151,8 @@ router.post('/dispatch', (req, res) => {
   writeFileSync(payloadPath, JSON.stringify(payload, null, 2));
 
   const chatPrompt = buildChatPrompt(payload);
+  const fullPromptText = buildFullPromptText(chatPrompt, payload);
+  const tokenEstimate = estimateTokenUsage(fullPromptText);
   const deepLink = `cursor://chat/new?prompt=${encodeURIComponent(chatPrompt)}`;
   const webChatUrl = `${CURSOR_WEB_CHAT_BASE}?prompt=${encodeURIComponent(chatPrompt)}`;
 
@@ -127,6 +163,7 @@ router.post('/dispatch', (req, res) => {
     chat_prompt: chatPrompt,
     cursor_deeplink: deepLink,
     cursor_web_url: webChatUrl,
+    token_estimate: tokenEstimate,
     note: 'Deep link support depends on local Cursor app URL-handler setup.',
   });
 });
@@ -176,12 +213,8 @@ router.post('/call-api', async (req, res) => {
     }
   }
 
-  const promptText = [
-    chatPrompt,
-    '',
-    'APPROVED CURSOR PAYLOAD (source of truth — do not invent beyond this):',
-    payloadJson ? JSON.stringify(payloadJson, null, 2) : '(payload file not found on server — use chat_prompt only)',
-  ].join('\n');
+  const promptText = buildFullPromptText(chatPrompt, payloadJson);
+  const tokenEstimate = estimateTokenUsage(promptText);
 
   const requestBody = {
     prompt: { text: promptText },
@@ -207,6 +240,7 @@ router.post('/call-api', async (req, res) => {
         ok: false,
         message: 'Cursor Cloud Agents API call failed',
         http_status: apiRes.status,
+        token_estimate: tokenEstimate,
         request_summary: {
           url: CURSOR_AGENTS_API_BASE,
           repository: CURSOR_REPOSITORY,
@@ -226,6 +260,7 @@ router.post('/call-api', async (req, res) => {
     return res.json({
       ok: true,
       message: 'Cursor Cloud Agent launched — polling for final output next',
+      token_estimate: tokenEstimate,
       request_summary: {
         url: CURSOR_AGENTS_API_BASE,
         repository: CURSOR_REPOSITORY,

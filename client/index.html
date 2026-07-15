@@ -84,6 +84,14 @@
         <h3>Cursor Dispatch Ready</h3>
         <p id="dispatch-message"></p>
         <textarea id="dispatch-prompt" readonly></textarea>
+        <aside id="token-estimate-banner" class="token-estimate-banner" aria-live="polite">
+          <strong>Token estimate (before Call API)</strong>
+          <p id="token-estimate-summary">Calculating…</p>
+          <ul id="token-estimate-details"></ul>
+          <p class="token-estimate-note">
+            This is an approximate count shown before you submit. Exact Cursor billing may differ because Cloud Agents also read repository context.
+          </p>
+        </aside>
         <div class="dispatch-actions">
           <button id="btn-open-cursor" type="button" class="primary">Open Cursor Chat</button>
           <button id="btn-open-cursor-web" type="button">Open Cursor Web Chat</button>

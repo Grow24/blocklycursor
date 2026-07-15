@@ -28,11 +28,14 @@ const cursorApiResultEl = document.getElementById('cursor-api-result');
 const cursorApiResponseEl = document.getElementById('cursor-api-response');
 const cursorAgentOutputEl = document.getElementById('cursor-agent-output');
 const cursorOutputStatusEl = document.getElementById('cursor-output-status');
+const tokenEstimateSummaryEl = document.getElementById('token-estimate-summary');
+const tokenEstimateDetailsEl = document.getElementById('token-estimate-details');
 let lastDispatchDeepLink = '';
 let lastDispatchWebUrl = '';
 let lastDispatchPrompt = '';
 let lastDispatchRequirementId = '';
 let lastDispatchPayloadFile = '';
+let lastTokenEstimate = null;
 let callApiInFlight = false;
 let agentPollTimer = null;
 const changeStats = {
@@ -178,13 +181,15 @@ async function dispatchToCursor(requirement) {
     lastDispatchPrompt = result.chat_prompt || '';
     lastDispatchRequirementId = requirement.requirement_id || '';
     lastDispatchPayloadFile = result.payload_file || '';
+    lastTokenEstimate = result.token_estimate || null;
     cursorApiResultEl.classList.add('hidden');
     cursorApiResponseEl.textContent = '';
     if (cursorAgentOutputEl) cursorAgentOutputEl.textContent = 'Waiting for Call API…';
     if (cursorOutputStatusEl) cursorOutputStatusEl.textContent = '';
     stopAgentPolling();
-    dispatchMessageEl.textContent = `Payload ready at ${result.payload_file}. If chat does not open automatically, copy prompt and paste into Cursor chat.`;
+    dispatchMessageEl.textContent = `Payload ready at ${result.payload_file}. Review token estimate below before Call API.`;
     dispatchPromptEl.value = lastDispatchPrompt;
+    renderTokenEstimate(lastTokenEstimate);
     dispatchPanel.classList.remove('hidden');
 
     if (lastDispatchDeepLink) {
@@ -199,11 +204,81 @@ async function dispatchToCursor(requirement) {
   }
 }
 
+function formatTokenCount(n) {
+  return Number(n || 0).toLocaleString();
+}
+
+function renderTokenEstimate(estimate) {
+  if (!tokenEstimateSummaryEl || !tokenEstimateDetailsEl) return;
+  if (!estimate) {
+    tokenEstimateSummaryEl.textContent = 'Token estimate unavailable for this payload.';
+    tokenEstimateDetailsEl.innerHTML = '';
+    return;
+  }
+
+  tokenEstimateSummaryEl.textContent = `About ${formatTokenCount(
+    estimate.estimated_input_tokens,
+  )} input tokens will be sent. Likely total usage ~${formatTokenCount(
+    estimate.estimated_total_tokens_low,
+  )}–${formatTokenCount(estimate.estimated_total_tokens_high)} tokens.`;
+
+  tokenEstimateDetailsEl.innerHTML = [
+    `<li>Prompt size: ${formatTokenCount(estimate.characters)} characters / ${formatTokenCount(estimate.words)} words</li>`,
+    `<li>Estimated input tokens: <strong>${formatTokenCount(estimate.estimated_input_tokens)}</strong></li>`,
+    `<li>Estimated reply tokens: ~${formatTokenCount(estimate.estimated_output_tokens)}</li>`,
+    `<li>Estimated total range: <strong>${formatTokenCount(estimate.estimated_total_tokens_low)} – ${formatTokenCount(estimate.estimated_total_tokens_high)}</strong></li>`,
+    `<li>Method: ${estimate.method || 'approximate'} (not exact Cursor billing)</li>`,
+  ].join('');
+
+  if (callApiBtn) {
+    callApiBtn.textContent = `Call API (~${formatTokenCount(estimate.estimated_input_tokens)} tokens)`;
+    callApiBtn.title = `Estimated input ${formatTokenCount(estimate.estimated_input_tokens)} tokens; total ~${formatTokenCount(estimate.estimated_total_tokens_low)}–${formatTokenCount(estimate.estimated_total_tokens_high)}`;
+  }
+}
+
+function confirmTokenUsageBeforeCall(estimate) {
+  const input = formatTokenCount(estimate?.estimated_input_tokens || 0);
+  const low = formatTokenCount(estimate?.estimated_total_tokens_low || 0);
+  const high = formatTokenCount(estimate?.estimated_total_tokens_high || 0);
+  return window.confirm(
+    [
+      'Before calling Cursor API, review token usage:',
+      '',
+      `• Estimated INPUT tokens to send: ${input}`,
+      `• Estimated TOTAL usage range: ${low} – ${high}`,
+      '',
+      'This is an approximate count. Cloud Agents may use more for repository context.',
+      '',
+      'Do you want to submit Call API now?',
+    ].join('\n'),
+  );
+}
+
 async function callCursorApi() {
   if (callApiInFlight) return;
   const prompt = (lastDispatchPrompt || dispatchPromptEl.value || '').trim();
   if (!prompt) {
     setStatus('No dispatch prompt available. Export Cursor Pack first.', 'error');
+    return;
+  }
+
+  if (!lastTokenEstimate) {
+    // Fallback estimate from visible prompt if server estimate missing
+    const chars = prompt.length;
+    lastTokenEstimate = {
+      characters: chars,
+      words: prompt.trim().split(/\s+/).length,
+      estimated_input_tokens: Math.max(1, Math.ceil(chars / 4)),
+      estimated_output_tokens: Math.ceil(chars / 4 / 3),
+      estimated_total_tokens_low: Math.ceil(chars / 4 * 1.35),
+      estimated_total_tokens_high: Math.ceil(chars / 4 * 3 + 2000),
+      method: 'client_fallback_chars_div_4',
+    };
+    renderTokenEstimate(lastTokenEstimate);
+  }
+
+  if (!confirmTokenUsageBeforeCall(lastTokenEstimate)) {
+    setStatus('Call API cancelled — review token estimate when ready.', 'ok');
     return;
   }
 
