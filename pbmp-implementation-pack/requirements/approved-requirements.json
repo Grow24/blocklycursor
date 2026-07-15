@@ -520,5 +520,58 @@
       "backpack": []
     },
     "saved_at": "2026-07-15T10:16:58.989Z"
+  },
+  {
+    "requirement_id": "REQ-SALES-005",
+    "goal": "Improve lead follow-up",
+    "actor": "Product Manager",
+    "trigger": "Lead score updated",
+    "condition": {
+      "field": "lead_score",
+      "operator": "<=",
+      "value": "35"
+    },
+    "conditions": [
+      {
+        "field": "lead_score",
+        "operator": "<=",
+        "value": "35"
+      }
+    ],
+    "actions": [
+      "Create task \"Follow up with customer\" for role Product Manager",
+      "Notify Product Manager: High-score lead needs follow-up"
+    ],
+    "structured_actions": [
+      {
+        "action": "create_task",
+        "title": "Follow up with customer",
+        "assigned_role": "Product Manager"
+      },
+      {
+        "action": "send_notification",
+        "assigned_role": "Product Manager",
+        "message": "High-score lead needs follow-up"
+      }
+    ],
+    "data_entities": [],
+    "business_rules": [],
+    "acceptance_criteria": [
+      "Given score <= 35, then task is created"
+    ],
+    "nfrs": {},
+    "approvals": [],
+    "outputs": [],
+    "notifications": [
+      {
+        "role": "Product Manager",
+        "message": "High-score lead needs follow-up"
+      }
+    ],
+    "procedures": [],
+    "functions": [],
+    "out_of_scope": [],
+    "status": "Validated",
+    "saved_at": "2026-07-15T11:58:00.000Z"
   }
 ]

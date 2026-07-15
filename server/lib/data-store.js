@@ -1,6 +1,6 @@
 /**
  * PBMP Traceability
- * Requirement: REQ-SALES-001
+ * Requirement: REQ-SALES-001, REQ-SALES-005
  * Data entities: Lead, Task, User, AuditLog
  */
 import { mkdirSync, readFileSync, writeFileSync, existsSync, renameSync } from 'fs';
@@ -66,8 +66,15 @@ export function seedDefaults() {
     role: 'Business Owner',
     created_at: new Date().toISOString(),
   };
+  const productManager = {
+    id: randomUUID(),
+    name: 'Taylor Chen',
+    email: 'taylor.chen@example.com',
+    role: 'Product Manager',
+    created_at: new Date().toISOString(),
+  };
 
-  store.users.push(salesManager, businessOwner);
+  store.users.push(salesManager, businessOwner, productManager);
   writeStore(store);
   return store;
 }

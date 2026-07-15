@@ -11,6 +11,7 @@
 | GAP-CURSOR-TOKEN-001 | Cursor Integration (Ops) | Missing Formal Requirement | Token/cost governance (estimate range, run ledger, budgets, trial limits) implemented as Ops controls for shared Cursor Pro wallet. Needs formal Requirement ID + AC approval for production billing/chargeback. | Open | Development | Product Manager / Business Analyst |
 | GAP-CURSOR-TOKEN-002 | Cursor Integration (Ops) | Missing Business Rule | No Cursor pre-flight API for exact tokens/cost before run. PBMP uses approximate estimates + monthly reconciliation against Cursor Dashboard/Admin APIs (Teams/Enterprise). Confirm approved reconciliation process. | Open | Development | Ops / Business Analyst |
 | GAP-CURSOR-TOKEN-003 | Cursor Integration (Ops) | Missing Data Rule | PBMP auth does not yet map real trial/paid users to Cursor runs. Temporary defaults: `PBMP_DEFAULT_CURSOR_USER_ID` / `X-PBMP-User-Id` header. Confirm approved identity source for chargeback. | Open | Development | Product Manager |
+| GAP-REQ-SALES-005-01 | REQ-SALES-005 | Inconsistent Acceptance Criteria | Cursor payload condition specifies `lead_score <= 35` but acceptance_criteria states "Given score > 35, then task is created". Implementation follows condition (<=35 triggers task). Confirm correct AC wording. | Open | Development | Business Analyst |
 
 ## Template
 

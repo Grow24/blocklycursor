@@ -1,7 +1,7 @@
 /**
  * PBMP Traceability
- * Requirement: REQ-SALES-001
- * Acceptance Criteria: AC-REQ-SALES-001-1
+ * Requirement: REQ-SALES-001, REQ-SALES-005
+ * Acceptance Criteria: AC-REQ-SALES-001-1, AC-REQ-SALES-005-1
  */
 import { Router } from 'express';
 import {
@@ -13,6 +13,7 @@ import {
   getUserById,
 } from '../lib/data-store.js';
 import { onLeadScoreUpdated } from '../lib/rule-engine.js';
+import { onLeadScoreUpdatedSales005 } from '../lib/rule-engine-sales-005.js';
 import { AppError, asyncHandler } from '../middleware/error-handler.js';
 
 const router = Router();
@@ -46,7 +47,7 @@ function validateLeadInput(body, { partial = false } = {}) {
 router.get(
   '/',
   asyncHandler(async (_req, res) => {
-    res.json({ leads: listLeads(), requirement_id: 'REQ-SALES-001' });
+    res.json({ leads: listLeads(), requirement_ids: ['REQ-SALES-001', 'REQ-SALES-005'] });
   }),
 );
 
@@ -78,6 +79,18 @@ router.post(
   }),
 );
 
+function combineRuleResults(result1, result2) {
+  return {
+    triggered: result1.triggered || result2.triggered,
+    tasks: [...(result1.tasks || []), ...(result2.tasks || [])],
+    notifications: [...(result1.notifications || []), ...(result2.notifications || [])],
+    rules_triggered: [
+      ...(result1.triggered ? ['REQ-SALES-001'] : []),
+      ...(result2.triggered ? ['REQ-SALES-005'] : []),
+    ],
+  };
+}
+
 router.patch(
   '/:id',
   asyncHandler(async (req, res) => {
@@ -95,7 +108,7 @@ router.patch(
     if (req.body.assigned_to !== undefined) patch.assigned_to = req.body.assigned_to || null;
 
     const previousScore = existing.lead_score;
-    let ruleResult = { triggered: false };
+    let ruleResult = { triggered: false, tasks: [], notifications: [], rules_triggered: [] };
 
     if (req.body.lead_score !== undefined) {
       patch.lead_score = Number(req.body.lead_score);
@@ -103,7 +116,9 @@ router.patch(
 
     const lead = updateLead(req.params.id, patch);
     if (patch.lead_score !== undefined && patch.lead_score !== previousScore) {
-      ruleResult = onLeadScoreUpdated(lead, previousScore);
+      const result001 = onLeadScoreUpdated(lead, previousScore);
+      const result005 = onLeadScoreUpdatedSales005(lead, previousScore);
+      ruleResult = combineRuleResults(result001, result005);
     }
 
     res.json({ lead, rule_result: ruleResult });
@@ -123,7 +138,9 @@ router.patch(
 
     const previousScore = existing.lead_score;
     const lead = updateLead(req.params.id, { lead_score: score });
-    const ruleResult = onLeadScoreUpdated(lead, previousScore);
+    const result001 = onLeadScoreUpdated(lead, previousScore);
+    const result005 = onLeadScoreUpdatedSales005(lead, previousScore);
+    const ruleResult = combineRuleResults(result001, result005);
 
     res.json({ lead, rule_result: ruleResult });
   }),
