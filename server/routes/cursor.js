@@ -417,10 +417,11 @@ router.post('/call-api', async (req, res) => {
     });
   }
 
+  // Cursor Cloud Agents API v1 expects model as an object: { id: "..." }.
+  // Sending a bare string (e.g. "auto") fails validation. Omit model to use Cursor default.
   const requestBody = {
     prompt: { text: promptText },
     name: requirementId ? `PBMP ${requirementId}` : 'PBMP Cursor Dispatch',
-    model,
     repos: [
       {
         url: c.repository,
@@ -429,6 +430,9 @@ router.post('/call-api', async (req, res) => {
     ],
     autoCreatePR: c.autoCreatePR,
   };
+  if (model && model !== 'auto') {
+    requestBody.model = { id: model };
+  }
 
   const ledgerDraft = createCursorRun({
     pbmp_user_id: actor.userId,
@@ -456,19 +460,24 @@ router.post('/call-api', async (req, res) => {
 
     if (!apiRes.ok) {
       const errMsg =
-        apiJson?.message
+        apiJson?.error?.message
+        || apiJson?.message
         || apiJson?.error
         || (typeof apiJson?.raw === 'string' ? apiJson.raw.slice(0, 200) : 'Cursor API error');
       updateCursorRun(ledgerDraft.id, {
         status: 'ERROR',
         error_message: String(errMsg),
       });
+      const isAuth =
+        apiRes.status === 401
+        || apiRes.status === 403
+        || String(errMsg).toLowerCase().includes('unauthorized')
+        || String(errMsg).toLowerCase().includes('forbidden');
       return res.status(apiRes.status).json({
         ok: false,
-        message:
-          apiRes.status === 429
-            ? 'Cursor usage limit reached'
-            : 'Cursor Cloud Agents API call failed',
+        message: isAuth
+          ? `Cursor API auth/permission failed (${apiRes.status}). Check CURSOR_API_KEY is a Cloud Agents-capable key and GitHub repo is connected.`
+          : `Cursor Cloud Agents API call failed: ${errMsg}`,
         http_status: apiRes.status,
         token_estimate: estimate,
         governance: gate,
@@ -478,9 +487,20 @@ router.post('/call-api', async (req, res) => {
           repository: c.repository,
           ref: c.repoRef,
           requirement_id: requirementId || null,
-          model,
+          model: model === 'auto' ? 'default (omitted)' : model,
         },
         cursor_response: apiJson,
+        fix_hints: isAuth
+          ? [
+              'Cursor Dashboard → Cloud Agents → My Settings → API Keys se naya key banao',
+              'Zeabur Variable: CURSOR_API_KEY update karo',
+              'CURSOR_REPOSITORY must be GitHub repo connected to that Cursor account',
+              'Pro plan required for Cloud Agents',
+            ]
+          : [
+              'Launch response mein cursor_response / error.message padho',
+              'Model must be object { id } on v1 API; PBMP now omits model for auto',
+            ],
       });
     }
 
