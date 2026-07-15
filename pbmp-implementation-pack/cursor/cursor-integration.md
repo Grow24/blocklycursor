@@ -62,9 +62,38 @@ CURSOR_API_KEY=...                 # Cursor Dashboard → API Keys
 CURSOR_REPOSITORY=https://github.com/Grow24/blocklycursor
 CURSOR_REPO_REF=main
 CURSOR_AUTO_CREATE_PR=false        # optional
+CURSOR_MODEL_DEFAULT=auto
+CURSOR_ALLOWED_MODELS=auto,composer,gpt-5-mini
+PBMP_CURSOR_MONTHLY_BUDGET_USD=20.00
+PBMP_REQUIRE_COST_CONFIRMATION=true
+PBMP_ALLOWED_REPOS=Grow24/blocklycursor,Grow24/bpmpcursor
 ```
 
 If keys are missing, the UI shows a clear config error under the Call API button (`GAP-CURSOR-API-001`).
+
+### Token / cost governance (GAP-CURSOR-TOKEN-001)
+
+PBMP estimates tokens + approximate **cost range** before Cloud Agent launch.
+There is no Cursor pre-flight exact-cost API; PBMP must estimate and keep a run ledger.
+
+Flow:
+1. Export Cursor Pack → `POST /api/cursor/dispatch` (payload + estimate)
+2. Optional: `POST /api/cursor/estimate` (recalculate range)
+3. User confirms approximate cost
+4. `POST /api/cursor/call-api` with `cost_confirmed: true` (governance gates apply)
+5. PBMP stores run in `data/cursor/cursor-runs.json`
+6. UI polls `GET /api/cursor/agent-run`
+
+Useful endpoints:
+- `GET /api/cursor/config`
+- `GET /api/cursor/usage`
+- `GET /api/cursor/runs`
+- `POST /api/cursor/estimate`
+- `POST /api/cursor/call-api`
+- `GET /api/cursor/agent-run`
+
+Identity (until auth lands): headers `X-PBMP-User-Id`, `X-PBMP-User-Tier`, `X-PBMP-Project-Id`
+or body fields `pbmp_user_id`, `pbmp_user_tier`, `pbmp_project_id`.
 
 ### C. CLI / MCP (later / Ops)
 

@@ -23,19 +23,23 @@ const openCursorBtn = document.getElementById('btn-open-cursor');
 const openCursorWebBtn = document.getElementById('btn-open-cursor-web');
 const copyPromptBtn = document.getElementById('btn-copy-prompt');
 const callApiBtn = document.getElementById('btn-call-api');
+const estimateCostBtn = document.getElementById('btn-estimate-cost');
 const closeDispatchBtn = document.getElementById('btn-close-dispatch');
 const cursorApiResultEl = document.getElementById('cursor-api-result');
 const cursorApiResponseEl = document.getElementById('cursor-api-response');
 const cursorAgentOutputEl = document.getElementById('cursor-agent-output');
 const cursorOutputStatusEl = document.getElementById('cursor-output-status');
+const tokenEstimateBannerEl = document.getElementById('token-estimate-banner');
 const tokenEstimateSummaryEl = document.getElementById('token-estimate-summary');
 const tokenEstimateDetailsEl = document.getElementById('token-estimate-details');
+const governanceWarningsEl = document.getElementById('governance-warnings');
 let lastDispatchDeepLink = '';
 let lastDispatchWebUrl = '';
 let lastDispatchPrompt = '';
 let lastDispatchRequirementId = '';
 let lastDispatchPayloadFile = '';
 let lastTokenEstimate = null;
+let lastGovernancePreview = null;
 let callApiInFlight = false;
 let agentPollTimer = null;
 const changeStats = {
@@ -182,14 +186,15 @@ async function dispatchToCursor(requirement) {
     lastDispatchRequirementId = requirement.requirement_id || '';
     lastDispatchPayloadFile = result.payload_file || '';
     lastTokenEstimate = result.token_estimate || null;
+    lastGovernancePreview = result.governance_preview || null;
     cursorApiResultEl.classList.add('hidden');
     cursorApiResponseEl.textContent = '';
     if (cursorAgentOutputEl) cursorAgentOutputEl.textContent = 'Waiting for Call API…';
     if (cursorOutputStatusEl) cursorOutputStatusEl.textContent = '';
     stopAgentPolling();
-    dispatchMessageEl.textContent = `Payload ready at ${result.payload_file}. Review token estimate below before Call API.`;
+    dispatchMessageEl.textContent = `Payload ready at ${result.payload_file}. Review estimated cost range below before Call API.`;
     dispatchPromptEl.value = lastDispatchPrompt;
-    renderTokenEstimate(lastTokenEstimate);
+    renderTokenEstimate(lastTokenEstimate, lastGovernancePreview);
     dispatchPanel.classList.remove('hidden');
 
     if (lastDispatchDeepLink) {
@@ -208,50 +213,116 @@ function formatTokenCount(n) {
   return Number(n || 0).toLocaleString();
 }
 
-function renderTokenEstimate(estimate) {
+function formatUsd(n) {
+  return `$${(Number(n) || 0).toFixed(2)}`;
+}
+
+function renderTokenEstimate(estimate, governance = null) {
   if (!tokenEstimateSummaryEl || !tokenEstimateDetailsEl) return;
+  if (tokenEstimateBannerEl) tokenEstimateBannerEl.classList.remove('is-blocked');
+  if (governanceWarningsEl) governanceWarningsEl.textContent = '';
+
   if (!estimate) {
-    tokenEstimateSummaryEl.textContent = 'Token estimate unavailable for this payload.';
+    tokenEstimateSummaryEl.textContent = 'Token/cost estimate unavailable for this payload.';
     tokenEstimateDetailsEl.innerHTML = '';
     return;
   }
 
-  tokenEstimateSummaryEl.textContent = `About ${formatTokenCount(
-    estimate.estimated_input_tokens,
-  )} input tokens will be sent. Likely total usage ~${formatTokenCount(
-    estimate.estimated_total_tokens_low,
-  )}–${formatTokenCount(estimate.estimated_total_tokens_high)} tokens.`;
+  const costLow = estimate.estimated_cost_usd_low;
+  const costHigh = estimate.estimated_cost_usd_high;
+  const rangeLabel =
+    estimate.estimated_cost_range_label
+    || `${formatUsd(costLow)}–${formatUsd(costHigh)}`;
+
+  tokenEstimateSummaryEl.textContent = `Approximate cost: ${rangeLabel} · Model: ${
+    estimate.model || 'auto'
+  } · Input tokens ~${formatTokenCount(
+    estimate.estimated_input_tokens_low || estimate.estimated_input_tokens,
+  )}–${formatTokenCount(
+    estimate.estimated_input_tokens_high || estimate.estimated_total_tokens_high,
+  )}`;
 
   tokenEstimateDetailsEl.innerHTML = [
     `<li>Prompt size: ${formatTokenCount(estimate.characters)} characters / ${formatTokenCount(estimate.words)} words</li>`,
-    `<li>Estimated input tokens: <strong>${formatTokenCount(estimate.estimated_input_tokens)}</strong></li>`,
-    `<li>Estimated reply tokens: ~${formatTokenCount(estimate.estimated_output_tokens)}</li>`,
-    `<li>Estimated total range: <strong>${formatTokenCount(estimate.estimated_total_tokens_low)} – ${formatTokenCount(estimate.estimated_total_tokens_high)}</strong></li>`,
+    `<li>Estimated input tokens: <strong>${formatTokenCount(estimate.estimated_input_tokens_low || estimate.estimated_input_tokens)} – ${formatTokenCount(estimate.estimated_input_tokens_high || estimate.estimated_input_tokens)}</strong></li>`,
+    `<li>Estimated output tokens: ~${formatTokenCount(estimate.estimated_output_tokens_low || estimate.estimated_output_tokens)} – ${formatTokenCount(estimate.estimated_output_tokens_high || estimate.estimated_output_tokens)}</li>`,
+    `<li>Approximate cost: <strong>${rangeLabel}</strong></li>`,
     `<li>Method: ${estimate.method || 'approximate'} (not exact Cursor billing)</li>`,
   ].join('');
 
+  const warnings = governance?.warnings || [];
+  const errors = governance?.errors || [];
+  if (governanceWarningsEl && (warnings.length || errors.length)) {
+    const lines = [
+      ...errors.map((e) => `Blocked: ${e.message || e.code}`),
+      ...warnings.map((w) => `Warning: ${w.message || w.code}`),
+    ];
+    governanceWarningsEl.textContent = lines.join('\n');
+  }
+  if (tokenEstimateBannerEl && errors.length) {
+    tokenEstimateBannerEl.classList.add('is-blocked');
+  }
+
   if (callApiBtn) {
-    callApiBtn.textContent = `Call API (~${formatTokenCount(estimate.estimated_input_tokens)} tokens)`;
-    callApiBtn.title = `Estimated input ${formatTokenCount(estimate.estimated_input_tokens)} tokens; total ~${formatTokenCount(estimate.estimated_total_tokens_low)}–${formatTokenCount(estimate.estimated_total_tokens_high)}`;
+    callApiBtn.textContent = `Call API (${rangeLabel})`;
+    callApiBtn.title = `Approximate cost ${rangeLabel}; input ~${formatTokenCount(estimate.estimated_input_tokens)} tokens`;
   }
 }
 
-function confirmTokenUsageBeforeCall(estimate) {
-  const input = formatTokenCount(estimate?.estimated_input_tokens || 0);
-  const low = formatTokenCount(estimate?.estimated_total_tokens_low || 0);
-  const high = formatTokenCount(estimate?.estimated_total_tokens_high || 0);
+function confirmTokenUsageBeforeCall(estimate, governance = null) {
+  const range =
+    estimate?.estimated_cost_range_label
+    || `${formatUsd(estimate?.estimated_cost_usd_low)}–${formatUsd(estimate?.estimated_cost_usd_high)}`;
+  const inputLow = formatTokenCount(
+    estimate?.estimated_input_tokens_low || estimate?.estimated_input_tokens || 0,
+  );
+  const inputHigh = formatTokenCount(
+    estimate?.estimated_input_tokens_high || estimate?.estimated_total_tokens_high || 0,
+  );
+  const warningLines = (governance?.warnings || []).map((w) => `• ${w.message || w.code}`);
   return window.confirm(
     [
-      'Before calling Cursor API, review token usage:',
+      'Cursor Cost Preview',
       '',
-      `• Estimated INPUT tokens to send: ${input}`,
-      `• Estimated TOTAL usage range: ${low} – ${high}`,
+      `• Approximate cost: ${range}`,
+      `• Estimated input tokens: ${inputLow} – ${inputHigh}`,
+      `• Model: ${estimate?.model || 'auto'}`,
       '',
-      'This is an approximate count. Cloud Agents may use more for repository context.',
+      ...(warningLines.length ? ['Warnings:', ...warningLines, ''] : []),
+      'This is an approximate range. Cloud Agents may use more for repository context.',
       '',
-      'Do you want to submit Call API now?',
+      'Submit to Cursor now?',
     ].join('\n'),
   );
+}
+
+async function refreshCostEstimate() {
+  const prompt = (lastDispatchPrompt || dispatchPromptEl.value || '').trim();
+  if (!prompt) {
+    setStatus('No dispatch prompt available. Export Cursor Pack first.', 'error');
+    return;
+  }
+  try {
+    const res = await fetch('/api/cursor/estimate', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        chat_prompt: prompt,
+        requirement_id: lastDispatchRequirementId,
+      }),
+    });
+    const result = await res.json();
+    if (!res.ok || !result.ok) {
+      setStatus(result.message || 'Cost estimate failed', 'error');
+      return;
+    }
+    lastTokenEstimate = result.token_estimate || null;
+    lastGovernancePreview = result.governance_preview || null;
+    renderTokenEstimate(lastTokenEstimate, lastGovernancePreview);
+    setStatus(`Estimated cost ${lastTokenEstimate?.estimated_cost_range_label || ''}`, 'ok');
+  } catch (err) {
+    setStatus(`Estimate error: ${err.message}`, 'error');
+  }
 }
 
 async function callCursorApi() {
@@ -263,22 +334,21 @@ async function callCursorApi() {
   }
 
   if (!lastTokenEstimate) {
-    // Fallback estimate from visible prompt if server estimate missing
-    const chars = prompt.length;
-    lastTokenEstimate = {
-      characters: chars,
-      words: prompt.trim().split(/\s+/).length,
-      estimated_input_tokens: Math.max(1, Math.ceil(chars / 4)),
-      estimated_output_tokens: Math.ceil(chars / 4 / 3),
-      estimated_total_tokens_low: Math.ceil(chars / 4 * 1.35),
-      estimated_total_tokens_high: Math.ceil(chars / 4 * 3 + 2000),
-      method: 'client_fallback_chars_div_4',
-    };
-    renderTokenEstimate(lastTokenEstimate);
+    await refreshCostEstimate();
+  }
+  if (!lastTokenEstimate) {
+    setStatus('Could not estimate cost. Try Estimate Cost first.', 'error');
+    return;
   }
 
-  if (!confirmTokenUsageBeforeCall(lastTokenEstimate)) {
-    setStatus('Call API cancelled — review token estimate when ready.', 'ok');
+  if (lastGovernancePreview && lastGovernancePreview.allowed === false) {
+    renderTokenEstimate(lastTokenEstimate, lastGovernancePreview);
+    setStatus('Cursor call blocked by PBMP budget/token limits. See warnings above.', 'error');
+    return;
+  }
+
+  if (!confirmTokenUsageBeforeCall(lastTokenEstimate, lastGovernancePreview)) {
+    setStatus('Call API cancelled — review cost estimate when ready.', 'ok');
     return;
   }
 
@@ -299,10 +369,16 @@ async function callCursorApi() {
         chat_prompt: prompt,
         requirement_id: lastDispatchRequirementId,
         payload_file: lastDispatchPayloadFile,
+        cost_confirmed: true,
       }),
     });
     const result = await res.json();
     cursorApiResponseEl.textContent = JSON.stringify(result, null, 2);
+    if (result.token_estimate) {
+      lastTokenEstimate = result.token_estimate;
+      lastGovernancePreview = result.governance || lastGovernancePreview;
+      renderTokenEstimate(lastTokenEstimate, lastGovernancePreview);
+    }
     if (!res.ok || !result.ok) {
       cursorOutputStatusEl.textContent = 'Launch failed';
       cursorAgentOutputEl.textContent = result.message || 'Cursor API call failed';
@@ -469,6 +545,7 @@ copyPromptBtn.addEventListener('click', async () => {
     setStatus('Prompt copied using fallback.', 'ok');
   }
 });
+if (estimateCostBtn) estimateCostBtn.addEventListener('click', refreshCostEstimate);
 callApiBtn.addEventListener('click', callCursorApi);
 closeDispatchBtn.addEventListener('click', () => {
   stopAgentPolling();

@@ -179,6 +179,19 @@ main {
   opacity: 0.9;
 }
 
+.token-estimate-warnings {
+  margin: 0.4rem 0 0;
+  font-size: 0.8rem;
+  color: #9a3412;
+  white-space: pre-wrap;
+}
+
+.token-estimate-banner.is-blocked {
+  border-color: #dc2626;
+  background: #fef2f2;
+  color: #7f1d1d;
+}
+
 .dispatch-actions {
   margin-top: 0.75rem;
   display: flex;

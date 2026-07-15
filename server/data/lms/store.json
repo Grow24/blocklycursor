@@ -15,8 +15,343 @@
       "created_at": "2026-07-09T08:27:15.958Z"
     }
   ],
-  "leads": [],
-  "tasks": [],
-  "notifications": [],
-  "audit_log": []
+  "leads": [
+    {
+      "id": "e9f4c269-d382-4163-8257-3e7e8fe7cfd3",
+      "name": "test1",
+      "email": "test@gmail.com",
+      "company": "test1",
+      "lead_score": 96,
+      "assigned_to": "94d77481-a53c-4004-948f-d01721741df2",
+      "status": "new",
+      "created_at": "2026-07-13T09:56:25.918Z",
+      "updated_at": "2026-07-13T10:17:25.518Z"
+    },
+    {
+      "id": "c11cf6ac-92fb-45a9-9cdf-d97a6e411d21",
+      "name": "test2",
+      "email": "test2@gmail.com",
+      "company": "test2",
+      "lead_score": 83,
+      "assigned_to": "94d77481-a53c-4004-948f-d01721741df2",
+      "status": "new",
+      "created_at": "2026-07-13T09:56:49.784Z",
+      "updated_at": "2026-07-13T09:57:15.487Z"
+    }
+  ],
+  "tasks": [
+    {
+      "id": "64cd1491-55b7-4efe-8848-f4b27423e90b",
+      "title": "Follow up with customer",
+      "assigned_role": "Sales Manager",
+      "assigned_to": "94d77481-a53c-4004-948f-d01721741df2",
+      "lead_id": "aff58f57-23e3-4be7-a1a2-4ff0dc1a715a",
+      "requirement_id": "REQ-SALES-001",
+      "status": "open",
+      "created_at": "2026-07-13T09:45:05.725Z"
+    },
+    {
+      "id": "e2ad6ca8-0331-472c-99ad-e8b93db81edd",
+      "title": "Follow up with customer",
+      "assigned_role": "Sales Manager",
+      "assigned_to": "94d77481-a53c-4004-948f-d01721741df2",
+      "lead_id": "c11cf6ac-92fb-45a9-9cdf-d97a6e411d21",
+      "requirement_id": "REQ-SALES-001",
+      "status": "open",
+      "created_at": "2026-07-13T09:57:15.495Z"
+    },
+    {
+      "id": "3032b413-0ae8-4f73-a477-2d85f42ec715",
+      "title": "Follow up with customer",
+      "assigned_role": "Sales Manager",
+      "assigned_to": "94d77481-a53c-4004-948f-d01721741df2",
+      "lead_id": "e9f4c269-d382-4163-8257-3e7e8fe7cfd3",
+      "requirement_id": "REQ-SALES-001",
+      "status": "open",
+      "created_at": "2026-07-13T09:57:27.630Z"
+    }
+  ],
+  "notifications": [
+    {
+      "id": "21f5aa23-c4de-4b19-94eb-28275307d555",
+      "role": "Sales Manager",
+      "recipient_id": "94d77481-a53c-4004-948f-d01721741df2",
+      "message": "High-score lead needs follow-up",
+      "lead_id": "aff58f57-23e3-4be7-a1a2-4ff0dc1a715a",
+      "requirement_id": "REQ-SALES-001",
+      "read": false,
+      "created_at": "2026-07-13T09:45:05.727Z"
+    },
+    {
+      "id": "a82c10f6-c55b-4fb7-9d4d-68c77d29d7a7",
+      "role": "Sales Manager",
+      "recipient_id": "94d77481-a53c-4004-948f-d01721741df2",
+      "message": "High-score lead needs follow-up",
+      "lead_id": "c11cf6ac-92fb-45a9-9cdf-d97a6e411d21",
+      "requirement_id": "REQ-SALES-001",
+      "read": false,
+      "created_at": "2026-07-13T09:57:15.495Z"
+    },
+    {
+      "id": "578832a5-4498-434d-958f-2558569e7071",
+      "role": "Sales Manager",
+      "recipient_id": "94d77481-a53c-4004-948f-d01721741df2",
+      "message": "High-score lead needs follow-up",
+      "lead_id": "e9f4c269-d382-4163-8257-3e7e8fe7cfd3",
+      "requirement_id": "REQ-SALES-001",
+      "read": false,
+      "created_at": "2026-07-13T09:57:27.631Z"
+    }
+  ],
+  "audit_log": [
+    {
+      "id": "efffd2d0-7127-4513-8d75-7f303631693b",
+      "action": "lead_created",
+      "entity_type": "lead",
+      "entity_id": "de657449-4929-4d34-8330-6a35f37f089b",
+      "requirement_id": "REQ-SALES-001",
+      "details": {
+        "name": "test1",
+        "lead_score": 70
+      },
+      "created_at": "2026-07-13T09:43:29.504Z"
+    },
+    {
+      "id": "35c46534-0800-46c6-b57e-ec1f3ffcf27e",
+      "action": "lead_created",
+      "entity_type": "lead",
+      "entity_id": "aff58f57-23e3-4be7-a1a2-4ff0dc1a715a",
+      "requirement_id": "REQ-SALES-001",
+      "details": {
+        "name": "test2",
+        "lead_score": 95
+      },
+      "created_at": "2026-07-13T09:44:16.966Z"
+    },
+    {
+      "id": "2d48a1dc-1aae-449d-89a8-cb2a016552dc",
+      "action": "lead_score_updated",
+      "entity_type": "lead",
+      "entity_id": "aff58f57-23e3-4be7-a1a2-4ff0dc1a715a",
+      "requirement_id": "REQ-SALES-001",
+      "details": {
+        "previous_score": 95,
+        "new_score": 62,
+        "rule_evaluated": true,
+        "condition_met": false,
+        "crossed_threshold": false
+      },
+      "created_at": "2026-07-13T09:45:02.738Z"
+    },
+    {
+      "id": "f1ec35fc-9abd-44b3-9bd6-4c2a57f07dc4",
+      "action": "lead_score_updated",
+      "entity_type": "lead",
+      "entity_id": "aff58f57-23e3-4be7-a1a2-4ff0dc1a715a",
+      "requirement_id": "REQ-SALES-001",
+      "details": {
+        "previous_score": 62,
+        "new_score": 100,
+        "rule_evaluated": true,
+        "condition_met": true,
+        "crossed_threshold": true
+      },
+      "created_at": "2026-07-13T09:45:05.712Z"
+    },
+    {
+      "id": "a775935b-9508-45b3-b9f4-ae5732f85b3f",
+      "action": "task_created",
+      "entity_type": "task",
+      "entity_id": "64cd1491-55b7-4efe-8848-f4b27423e90b",
+      "requirement_id": "REQ-SALES-001",
+      "details": {
+        "title": "Follow up with customer",
+        "assigned_role": "Sales Manager",
+        "lead_id": "aff58f57-23e3-4be7-a1a2-4ff0dc1a715a"
+      },
+      "created_at": "2026-07-13T09:45:05.725Z"
+    },
+    {
+      "id": "b7c84176-f49b-40ef-aede-af403d638a28",
+      "action": "notification_sent",
+      "entity_type": "notification",
+      "entity_id": "21f5aa23-c4de-4b19-94eb-28275307d555",
+      "requirement_id": "REQ-SALES-001",
+      "details": {
+        "role": "Sales Manager",
+        "recipient_id": "94d77481-a53c-4004-948f-d01721741df2",
+        "message": "High-score lead needs follow-up",
+        "lead_id": "aff58f57-23e3-4be7-a1a2-4ff0dc1a715a"
+      },
+      "created_at": "2026-07-13T09:45:05.727Z"
+    },
+    {
+      "id": "ac59692b-3921-40d2-a0c5-f46db0d9f4fd",
+      "action": "lead_score_updated",
+      "entity_type": "lead",
+      "entity_id": "aff58f57-23e3-4be7-a1a2-4ff0dc1a715a",
+      "requirement_id": "REQ-SALES-001",
+      "details": {
+        "previous_score": 100,
+        "new_score": 73,
+        "rule_evaluated": true,
+        "condition_met": false,
+        "crossed_threshold": false
+      },
+      "created_at": "2026-07-13T09:45:11.269Z"
+    },
+    {
+      "id": "ffbf6881-cccb-45ea-9dd7-aa3d661075c6",
+      "action": "lead_created",
+      "entity_type": "lead",
+      "entity_id": "e9f4c269-d382-4163-8257-3e7e8fe7cfd3",
+      "requirement_id": "REQ-SALES-001",
+      "details": {
+        "name": "test1",
+        "lead_score": 70
+      },
+      "created_at": "2026-07-13T09:56:25.919Z"
+    },
+    {
+      "id": "b436cf6e-1d4d-45b4-96be-0477d35c877e",
+      "action": "lead_created",
+      "entity_type": "lead",
+      "entity_id": "c11cf6ac-92fb-45a9-9cdf-d97a6e411d21",
+      "requirement_id": "REQ-SALES-001",
+      "details": {
+        "name": "test2",
+        "lead_score": 95
+      },
+      "created_at": "2026-07-13T09:56:49.784Z"
+    },
+    {
+      "id": "7aafa628-da4e-49f3-8760-0e0a5a19f68e",
+      "action": "lead_score_updated",
+      "entity_type": "lead",
+      "entity_id": "c11cf6ac-92fb-45a9-9cdf-d97a6e411d21",
+      "requirement_id": "REQ-SALES-001",
+      "details": {
+        "previous_score": 95,
+        "new_score": 88,
+        "rule_evaluated": true,
+        "condition_met": true,
+        "crossed_threshold": false
+      },
+      "created_at": "2026-07-13T09:57:06.744Z"
+    },
+    {
+      "id": "5a3a0a94-6041-4aec-ba5f-ec46d4cd8d5d",
+      "action": "lead_score_updated",
+      "entity_type": "lead",
+      "entity_id": "c11cf6ac-92fb-45a9-9cdf-d97a6e411d21",
+      "requirement_id": "REQ-SALES-001",
+      "details": {
+        "previous_score": 88,
+        "new_score": 76,
+        "rule_evaluated": true,
+        "condition_met": false,
+        "crossed_threshold": false
+      },
+      "created_at": "2026-07-13T09:57:10.689Z"
+    },
+    {
+      "id": "27f92286-789e-4cc9-87c4-3ad2162fcac4",
+      "action": "lead_score_updated",
+      "entity_type": "lead",
+      "entity_id": "c11cf6ac-92fb-45a9-9cdf-d97a6e411d21",
+      "requirement_id": "REQ-SALES-001",
+      "details": {
+        "previous_score": 76,
+        "new_score": 83,
+        "rule_evaluated": true,
+        "condition_met": true,
+        "crossed_threshold": true
+      },
+      "created_at": "2026-07-13T09:57:15.487Z"
+    },
+    {
+      "id": "a6f503d7-5c2a-4c65-b7c2-79436346b9d7",
+      "action": "task_created",
+      "entity_type": "task",
+      "entity_id": "e2ad6ca8-0331-472c-99ad-e8b93db81edd",
+      "requirement_id": "REQ-SALES-001",
+      "details": {
+        "title": "Follow up with customer",
+        "assigned_role": "Sales Manager",
+        "lead_id": "c11cf6ac-92fb-45a9-9cdf-d97a6e411d21"
+      },
+      "created_at": "2026-07-13T09:57:15.495Z"
+    },
+    {
+      "id": "71dca8b4-6e11-4b0c-b357-90e60a945e0a",
+      "action": "notification_sent",
+      "entity_type": "notification",
+      "entity_id": "a82c10f6-c55b-4fb7-9d4d-68c77d29d7a7",
+      "requirement_id": "REQ-SALES-001",
+      "details": {
+        "role": "Sales Manager",
+        "recipient_id": "94d77481-a53c-4004-948f-d01721741df2",
+        "message": "High-score lead needs follow-up",
+        "lead_id": "c11cf6ac-92fb-45a9-9cdf-d97a6e411d21"
+      },
+      "created_at": "2026-07-13T09:57:15.495Z"
+    },
+    {
+      "id": "b104dce5-68bc-4753-882f-b2751e3baf7c",
+      "action": "lead_score_updated",
+      "entity_type": "lead",
+      "entity_id": "e9f4c269-d382-4163-8257-3e7e8fe7cfd3",
+      "requirement_id": "REQ-SALES-001",
+      "details": {
+        "previous_score": 70,
+        "new_score": 88,
+        "rule_evaluated": true,
+        "condition_met": true,
+        "crossed_threshold": true
+      },
+      "created_at": "2026-07-13T09:57:27.621Z"
+    },
+    {
+      "id": "dcb9317c-011f-49e6-96d4-aab228d84575",
+      "action": "task_created",
+      "entity_type": "task",
+      "entity_id": "3032b413-0ae8-4f73-a477-2d85f42ec715",
+      "requirement_id": "REQ-SALES-001",
+      "details": {
+        "title": "Follow up with customer",
+        "assigned_role": "Sales Manager",
+        "lead_id": "e9f4c269-d382-4163-8257-3e7e8fe7cfd3"
+      },
+      "created_at": "2026-07-13T09:57:27.630Z"
+    },
+    {
+      "id": "b15f5de0-2030-49e6-8d9a-98fc34fba18a",
+      "action": "notification_sent",
+      "entity_type": "notification",
+      "entity_id": "578832a5-4498-434d-958f-2558569e7071",
+      "requirement_id": "REQ-SALES-001",
+      "details": {
+        "role": "Sales Manager",
+        "recipient_id": "94d77481-a53c-4004-948f-d01721741df2",
+        "message": "High-score lead needs follow-up",
+        "lead_id": "e9f4c269-d382-4163-8257-3e7e8fe7cfd3"
+      },
+      "created_at": "2026-07-13T09:57:27.631Z"
+    },
+    {
+      "id": "95d43cbc-08a0-4a12-8cf3-f777dbf842df",
+      "action": "lead_score_updated",
+      "entity_type": "lead",
+      "entity_id": "e9f4c269-d382-4163-8257-3e7e8fe7cfd3",
+      "requirement_id": "REQ-SALES-001",
+      "details": {
+        "previous_score": 88,
+        "new_score": 96,
+        "rule_evaluated": true,
+        "condition_met": true,
+        "crossed_threshold": false
+      },
+      "created_at": "2026-07-13T10:17:25.519Z"
+    }
+  ]
 }
