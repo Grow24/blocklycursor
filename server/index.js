@@ -15,7 +15,9 @@ import notificationsRouter from './routes/notifications.js';
 import auditRouter from './routes/audit.js';
 import usersRouter from './routes/users.js';
 import cursorRouter from './routes/cursor.js';
+import sendEmailRouter from './routes/send-email.js';
 import { seedDefaults } from './lib/data-store.js';
+import { verifyEmailTransporter } from './lib/email-transporter.js';
 import { RULE_CONFIG } from './lib/rule-engine.js';
 import { errorHandler, notFoundHandler } from './middleware/error-handler.js';
 
@@ -49,9 +51,10 @@ const PORT = process.env.PORT || 3000;
 const clientDist = join(__dirname, '..', 'client', 'dist');
 
 app.use(cors());
-app.use(express.json({ limit: '2mb' }));
+app.use(express.json({ limit: '50mb' }));
 
 seedDefaults();
+verifyEmailTransporter();
 
 app.get('/api/health', (_req, res) => {
   res.json({
@@ -73,6 +76,7 @@ app.use('/api/notifications', notificationsRouter);
 app.use('/api/audit', auditRouter);
 app.use('/api/users', usersRouter);
 app.use('/api/cursor', cursorRouter);
+app.use('/api/send-email', sendEmailRouter);
 
 if (existsSync(clientDist)) {
   app.use(express.static(clientDist));

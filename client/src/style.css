@@ -53,6 +53,362 @@ body {
   flex-wrap: wrap;
 }
 
+.whatsapp-widget {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+}
+
+.whatsapp-icon-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.35rem;
+  height: 2.35rem;
+  padding: 0 !important;
+  border: none !important;
+  border-radius: 999px !important;
+  background: linear-gradient(145deg, #4ade80, #16a34a) !important;
+  color: #fff !important;
+  box-shadow: 0 2px 8px rgba(22, 163, 74, 0.45);
+}
+
+.whatsapp-icon-btn:hover {
+  background: linear-gradient(145deg, #22c55e, #15803d) !important;
+  transform: scale(1.06);
+}
+
+.whatsapp-popup {
+  position: absolute;
+  top: calc(100% + 0.5rem);
+  left: 0;
+  z-index: 30;
+  width: min(18rem, 85vw);
+  padding: 0.9rem 1rem;
+  border-radius: 12px;
+  background: #fff;
+  color: #0f172a;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.22);
+}
+
+.whatsapp-popup.hidden {
+  display: none;
+}
+
+.whatsapp-popup h3 {
+  margin: 0 0 0.4rem;
+  font-size: 0.95rem;
+}
+
+.whatsapp-popup p {
+  margin: 0 0 0.75rem;
+  font-size: 0.82rem;
+  color: #475569;
+  line-height: 1.4;
+}
+
+.whatsapp-open-link {
+  display: block;
+  text-align: center;
+  text-decoration: none;
+  padding: 0.5rem 0.75rem;
+  border-radius: 8px;
+  background: #16a34a;
+  color: #fff;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.whatsapp-open-link:hover {
+  background: #15803d;
+}
+
+.email-widget {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+}
+
+.email-icon-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.35rem;
+  height: 2.35rem;
+  padding: 0 !important;
+  border: none !important;
+  border-radius: 999px !important;
+  background: linear-gradient(145deg, #2dd4bf, #0d9488) !important;
+  color: #fff !important;
+  box-shadow: 0 2px 8px rgba(13, 148, 136, 0.45);
+}
+
+.email-icon-btn:hover {
+  background: linear-gradient(145deg, #14b8a6, #0f766e) !important;
+  transform: scale(1.06);
+}
+
+.email-popup {
+  position: absolute;
+  top: calc(100% + 0.5rem);
+  left: 0;
+  z-index: 30;
+  width: min(18rem, 85vw);
+  padding: 0.9rem 1rem;
+  border-radius: 12px;
+  background: #fff;
+  color: #0f172a;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.22);
+}
+
+.email-popup.hidden {
+  display: none;
+}
+
+.email-popup h3 {
+  margin: 0 0 0.4rem;
+  font-size: 0.95rem;
+}
+
+.email-popup p {
+  margin: 0 0 0.75rem;
+  font-size: 0.82rem;
+  color: #475569;
+  line-height: 1.4;
+}
+
+.email-open-btn {
+  display: block;
+  width: 100%;
+  text-align: center;
+  padding: 0.5rem 0.75rem;
+  border: none;
+  border-radius: 8px;
+  background: #0d9488;
+  color: #fff;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.email-open-btn:hover {
+  background: #0f766e;
+}
+
+.email-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+}
+
+.email-modal.hidden {
+  display: none;
+}
+
+.email-modal-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.55);
+}
+
+.email-modal-card {
+  position: relative;
+  z-index: 1;
+  width: min(42rem, 100%);
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  background: #fff;
+  color: #0f172a;
+  border-radius: 14px;
+  box-shadow: 0 20px 48px rgba(0, 0, 0, 0.28);
+  overflow: hidden;
+}
+
+.email-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.85rem 1rem;
+  border-bottom: 1px solid #e2e8f0;
+  background: #f8fafc;
+}
+
+.email-modal-header h2 {
+  margin: 0;
+  font-size: 1.05rem;
+}
+
+.email-modal-close {
+  border: none;
+  background: transparent;
+  font-size: 1.4rem;
+  line-height: 1;
+  cursor: pointer;
+  color: #64748b;
+}
+
+.email-modal-tabs {
+  display: flex;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.email-modal-tabs button {
+  flex: 1;
+  border: none;
+  background: transparent;
+  padding: 0.65rem 1rem;
+  cursor: pointer;
+  color: #64748b;
+  border-bottom: 2px solid transparent;
+}
+
+.email-modal-tabs button.active {
+  color: #0d9488;
+  border-bottom-color: #0d9488;
+  font-weight: 600;
+}
+
+.email-modal-body {
+  padding: 1rem;
+  overflow-y: auto;
+}
+
+.email-field {
+  display: block;
+  margin-bottom: 0.75rem;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: #334155;
+}
+
+.email-field input,
+.email-field textarea {
+  display: block;
+  width: 100%;
+  margin-top: 0.35rem;
+  padding: 0.5rem 0.65rem;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  font: inherit;
+  font-weight: 400;
+}
+
+.email-field-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+}
+
+.email-file-error {
+  margin: 0 0 0.5rem;
+  font-size: 0.82rem;
+  color: #b91c1c;
+}
+
+.email-file-error.hidden {
+  display: none;
+}
+
+.email-attachments ul {
+  margin: 0.5rem 0 0;
+  padding: 0;
+  list-style: none;
+  font-size: 0.82rem;
+}
+
+.email-attachments li {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.25rem;
+}
+
+.email-remove-attachment {
+  border: none;
+  background: transparent;
+  color: #dc2626;
+  cursor: pointer;
+  font-size: 0.78rem;
+}
+
+.email-preview-meta {
+  margin-bottom: 0.75rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid #e2e8f0;
+  font-size: 0.85rem;
+  color: #64748b;
+}
+
+.email-preview-meta p {
+  margin: 0.2rem 0;
+}
+
+.email-preview-body {
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+
+.email-send-status {
+  margin: 0 1rem;
+  padding: 0.5rem 0.75rem;
+  border-radius: 8px;
+  font-size: 0.85rem;
+}
+
+.email-send-status.hidden {
+  display: none;
+}
+
+.email-send-status.success {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.email-send-status.error {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+.email-modal-footer {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 0.5rem;
+  padding: 0.85rem 1rem;
+  border-top: 1px solid #e2e8f0;
+  background: #f8fafc;
+}
+
+.email-modal-footer button {
+  border: 1px solid #cbd5e1;
+  background: #fff;
+  color: #334155;
+  padding: 0.45rem 0.85rem;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 0.85rem;
+}
+
+.email-modal-footer button.primary {
+  border-color: #0d9488;
+  background: #0d9488;
+  color: #fff;
+}
+
+.email-modal-footer button.primary:hover {
+  background: #0f766e;
+}
+
+.email-modal-footer button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
 .toolbar button {
   border: 1px solid #6366f1;
   background: transparent;

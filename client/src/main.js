@@ -6,6 +6,7 @@ import {
   toCursorImplementationPayload,
 } from './export/requirement-exporter.js';
 import { BLOCK_JSON_MAPPING, MANUAL_ENTRY_STEPS } from './guide/mapping-guide.js';
+import { initEmailWidget } from './email-widget.js';
 
 const workspace = initWorkspace('blocklyDiv');
 const statusEl = document.getElementById('status');
@@ -519,6 +520,46 @@ document.getElementById('btn-load').addEventListener('click', loadSample);
 document.getElementById('btn-guide').addEventListener('click', openGuidePanel);
 document.getElementById('btn-close-guide').addEventListener('click', closeGuidePanel);
 document.getElementById('btn-refresh-preview').addEventListener('click', refreshJsonPreview);
+
+/**
+ * Same behaviour as web/FloatingWhatsApp:
+ * icon click → popup → Open WhatsApp → https://wa.me/<digits>
+ */
+function initWhatsAppWidget() {
+  const btn = document.getElementById('btn-whatsapp');
+  const popup = document.getElementById('whatsapp-popup');
+  const link = document.getElementById('whatsapp-open-link');
+  if (!btn || !popup || !link) return;
+
+  const rawNumber =
+    (typeof import.meta !== 'undefined' && import.meta.env?.VITE_WHATSAPP_NUMBER) ||
+    '+919370239600';
+  const digits = String(rawNumber).replace(/[^0-9]/g, '');
+  link.href = `https://wa.me/${digits}`;
+
+  const closePopup = () => {
+    popup.classList.add('hidden');
+    btn.setAttribute('aria-expanded', 'false');
+  };
+
+  btn.addEventListener('click', (event) => {
+    event.stopPropagation();
+    const open = popup.classList.toggle('hidden') === false;
+    btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+  });
+
+  link.addEventListener('click', () => {
+    setStatus('Opening WhatsApp…', 'ok');
+    closePopup();
+  });
+
+  document.addEventListener('click', (event) => {
+    if (!popup.classList.contains('hidden') && !btn.contains(event.target) && !popup.contains(event.target)) {
+      closePopup();
+    }
+  });
+}
+
 openCursorBtn.addEventListener('click', () => {
   if (lastDispatchDeepLink) {
     window.location.href = lastDispatchDeepLink;
@@ -562,4 +603,6 @@ workspace.addChangeListener((event) => {
 });
 
 initGuidePanel();
+initEmailWidget();
+initWhatsAppWidget();
 setStatus('Ready — Ctrl/Cmd+F for workspace search');
