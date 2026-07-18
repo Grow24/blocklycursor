@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>PBMP — Form &amp; Style Workbench</title>
+    <link rel="stylesheet" href="/src/forms/forms.css" />
+  </head>
+  <body>
+    <header class="lms-header">
+      <div class="brand">
+        <h1>Form &amp; Style Workbench</h1>
+        <p>
+          Full PBMP Form model · 5 Form Types · 8 Style Templates ·
+          <span class="gap-note">GAP-FORM-TEMPLATE-001</span>
+        </p>
+      </div>
+      <nav class="lms-nav">
+        <a href="/">Discovery Workbench</a>
+        <a href="/leads.html">Leads</a>
+        <a href="/forms.html" class="active">Forms</a>
+      </nav>
+      <div class="header-actions">
+        <button type="button" id="btn-copy-json" class="btn">Copy JSON</button>
+        <button type="button" id="btn-export-json" class="btn primary">Export JSON</button>
+      </div>
+    </header>
+
+    <main class="forms-main">
+      <section class="hero-panel">
+        <h2 id="functionality-title">Functionality</h2>
+        <p id="functionality-desc"></p>
+        <div class="rule-strip">
+          Core rule: the same content or data can be packaged differently — either by
+          restyling the same Form, or by changing it into another Form Type.
+        </div>
+      </section>
+
+      <section class="panel">
+        <div class="panel-header"><h2>PBMP principles</h2></div>
+        <div id="principles" class="principles"></div>
+        <div id="unchanged-list"></div>
+      </section>
+
+      <section class="concepts concepts-6" id="concept-cards" aria-label="PBMP concepts"></section>
+
+      <div class="grid-2">
+        <section class="panel">
+          <div class="panel-header">
+            <h2>1. Underlying data (unchanged)</h2>
+            <span>Month × Sales</span>
+          </div>
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Month</th>
+                <th>Sales</th>
+              </tr>
+            </thead>
+            <tbody id="data-table-body"></tbody>
+          </table>
+        </section>
+
+        <section class="panel">
+          <div class="panel-header">
+            <h2>2. Functional Definition (fixed)</h2>
+            <span>Behaviour layer — not Form</span>
+          </div>
+          <div id="functional-def"></div>
+        </section>
+      </div>
+
+      <div class="grid-2">
+        <section class="panel">
+          <div class="panel-header">
+            <h2>3. Form Type</h2>
+            <span>Packaging / rendering</span>
+          </div>
+          <div id="form-type-group" class="choice-stack" role="group" aria-label="Form Type"></div>
+        </section>
+
+        <section class="panel">
+          <div class="panel-header">
+            <h2>4. Style Template</h2>
+            <span>Reusable presentation tokens</span>
+          </div>
+          <div id="style-group" class="choice-stack style-scroll" role="group" aria-label="Style Template"></div>
+        </section>
+      </div>
+
+      <section class="panel">
+        <div class="panel-header">
+          <h2>5. Rendered instance</h2>
+          <div class="preview-toolbar">
+            <div id="viewport-group" class="chip-row" role="group" aria-label="Viewport"></div>
+            <label class="toggle">
+              <input type="checkbox" id="compare-toggle" />
+              Compare styles
+            </label>
+            <select id="compare-style-select" aria-label="Compare style"></select>
+          </div>
+        </div>
+        <p id="preview-meta" class="preview-meta"></p>
+        <div class="preview-compare-grid">
+          <div class="preview-frame-wrap">
+            <div id="preview-frame" class="preview-frame">
+              <div id="form-preview" class="preview-shell" aria-live="polite"></div>
+            </div>
+          </div>
+          <div id="compare-panel" class="preview-frame-wrap" hidden>
+            <p id="compare-meta" class="preview-meta"></p>
+            <div id="compare-frame" class="preview-frame">
+              <div id="form-preview-compare" class="preview-shell"></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="panel">
+        <div class="panel-header">
+          <h2>6. Style gallery (same Form Type × all Style Templates)</h2>
+          <span>Click a card to apply</span>
+        </div>
+        <div id="style-gallery" class="style-gallery"></div>
+      </section>
+
+      <section class="panel">
+        <div class="panel-header">
+          <h2>7. Line Chart Form variants (shared table)</h2>
+          <span>All style presentations for the same Functionality</span>
+        </div>
+        <div class="table-wrap" style="max-height: none">
+          <table class="token-table" id="variant-table">
+            <thead>
+              <tr>
+                <th>Form variant</th>
+                <th>Background</th>
+                <th>Font</th>
+                <th>Line presentation</th>
+                <th>Other presentation settings</th>
+              </tr>
+            </thead>
+            <tbody id="variant-table-body"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <div class="grid-2">
+        <section class="panel">
+          <div class="panel-header">
+            <h2>8. Combination matrix (worked example)</h2>
+            <span>Line/Bar × Executive Light/Dark</span>
+          </div>
+          <div id="combo-matrix" class="combo-grid"></div>
+        </section>
+
+        <section class="panel">
+          <div class="panel-header">
+            <h2>9. Template layers</h2>
+            <span>Universal → Family → Form-Type</span>
+          </div>
+          <div id="layer-stack" class="layer-stack"></div>
+        </section>
+      </div>
+
+      <section class="panel">
+        <div class="panel-header">
+          <h2>10. Active Style Template — token inspector</h2>
+          <span>Reusable style intentions</span>
+        </div>
+        <div id="style-inspector" class="style-inspector"></div>
+      </section>
+
+      <section class="panel">
+        <div class="panel-header">
+          <h2>11. Style token interpretation by Form Type</h2>
+          <span>Same template, different packaging meaning</span>
+        </div>
+        <div class="table-wrap" style="max-height: none">
+          <table class="token-table">
+            <thead>
+              <tr>
+                <th>Style token</th>
+                <th>Line</th>
+                <th>Bar</th>
+                <th>Table</th>
+                <th>KPI</th>
+                <th>Text</th>
+                <th>Active</th>
+              </tr>
+            </thead>
+            <tbody id="token-table-body"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="panel">
+        <div class="panel-header">
+          <h2>12. Sentence / Text Form note</h2>
+        </div>
+        <div id="sentence-panel"></div>
+      </section>
+
+      <section class="panel">
+        <div class="panel-header">
+          <h2>13. Attribute matrix</h2>
+          <span>✓ direct · △ equivalent · — not applicable</span>
+        </div>
+        <div class="matrix-toolbar">
+          <select id="matrix-filter" aria-label="Filter attribute group"></select>
+          <input id="matrix-search" type="search" placeholder="Search attribute or meaning…" />
+          <label class="toggle">
+            <input type="checkbox" id="matrix-applicable" />
+            Only attributes applicable to active Form
+          </label>
+        </div>
+        <div class="table-wrap">
+          <table class="attr-table">
+            <thead>
+              <tr>
+                <th>Group</th>
+                <th>Attribute</th>
+                <th>Line</th>
+                <th>Bar</th>
+                <th>Table</th>
+                <th>KPI</th>
+                <th>Text</th>
+                <th>Active</th>
+                <th>Meaning</th>
+              </tr>
+            </thead>
+            <tbody id="attribute-body"></tbody>
+          </table>
+        </div>
+        <div class="legend-inline">
+          <span>✓ = directly applicable</span>
+          <span>△ = equivalent interpretation</span>
+          <span>— = not applicable</span>
+        </div>
+      </section>
+    </main>
+
+    <div id="toast" class="toast" role="status" aria-live="polite"></div>
+    <script type="module" src="/src/forms/main.js"></script>
+  </body>
+</html>

@@ -36,6 +36,7 @@ export default defineConfig({
       input: {
         main: 'index.html',
         leads: 'leads.html',
+        forms: 'forms.html',
       },
     },
   },
